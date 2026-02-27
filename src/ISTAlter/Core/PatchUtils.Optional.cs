@@ -493,12 +493,12 @@ public static partial class PatchUtils
             DnlibUtils.ReturnFalseMethod
         ) + module.PatchFunction(
             "\u0042\u004d\u0057.Rheingold.CoreFramework.ConfigSettings",
-            "ShouldUseIdentNuget",
+            "ShouldUseIdentNuget", // No long valid from 4.58
             "(System.Boolean)System.Boolean",
             DnlibUtils.ReturnFalseMethod
         ) + module.PatchGetter(
             "\u0042\u004d\u0057.Rheingold.CoreFramework.ConfigSettings",
-            "PsdzWebserviceEnabled",
+            "PsdzWebserviceEnabled", // No long valid from 4.58
             ReturnNullableFalse
         ) + module.PatchFunction(
             "\u0042\u004d\u0057.Rheingold.CoreFramework.ConfigSettings",
@@ -585,7 +585,7 @@ public static partial class PatchUtils
     [UserAuthPatch]
     [LibraryName("\u0042\u004d\u0057.ISPI.TRIC.ISTA.LOGIN.dll")]
     [FromVersion("4.57")]
-    public static int PatchUserEnvironmentProviderFrom458(ModuleDefMD module)
+    public static int PatchUserEnvironmentProviderFrom457(ModuleDefMD module)
     {
         return module.PatchFunction(
             "\u0042\u004d\u0057.ISPI.TRIC.ISTA.LOGIN.DataProviders.UserEnvironmentProvider",
@@ -780,7 +780,14 @@ public static partial class PatchUtils
             "\u0042\u004d\u0057.Rheingold.CoreFramework.DatabaseProvider.Dealer.BrandMapping",
             "IsVehicleInRange", // isSelectedBrandCompatible
             "(\u0042\u004d\u0057.Rheingold.CoreFramework.UiBrand,\u0042\u004d\u0057.Rheingold.CoreFramework.DatabaseProvider.Vehicle)System.Boolean",
-            DnlibUtils.ReturnTrueMethod);
+            DnlibUtils.ReturnTrueMethod
+        ) +
+        module.PatchFunction(
+            "\u0042\u004d\u0057.Rheingold.CoreFramework.DatabaseProvider.Dealer.Dealer",
+            "HasLicenseForBrand",
+            "(System.Nullable`1<\u0042\u004d\u0057.ISPI.TRIC.ISTA.Contracts.Enums.BrandName>)System.Boolean",
+            DnlibUtils.ReturnTrueMethod
+        );
     }
 
     [FixDS2VehicleIdentificationPatch]
@@ -792,10 +799,6 @@ public static partial class PatchUtils
         return module.PatchFunction(
             "\u0042\u004d\u0057.Rheingold.Diagnostics.VehicleIdent",
             "doVehicleShortTest",
-            "(\u0042\u004d\u0057.Rheingold.CoreFramework.IProgressMonitor)System.Boolean",
-            FixCondition) + module.PatchFunction(
-            "\u0042\u004d\u0057.Rheingold.Diagnostics.VehicleIdent",
-            "DoVehicleShortTest",
             "(\u0042\u004d\u0057.Rheingold.CoreFramework.IProgressMonitor)System.Boolean",
             FixCondition);
 
