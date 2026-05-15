@@ -19,7 +19,7 @@ public class CommandTabViewModel : ObservableObject
     private bool _isExecuting;
     private string _statusText = "Ready";
     private bool _isLogPanelExpanded = true;
-    private CommandDescriptor _selectedCommand;
+    private CommandDescriptor? _selectedCommand;
 
     public CommandDescriptor RootDescriptor { get; }
 
@@ -29,7 +29,7 @@ public class CommandTabViewModel : ObservableObject
 
     public bool HasSubcommands => AvailableCommands.Count > 1;
 
-    public CommandDescriptor SelectedCommand
+    public CommandDescriptor? SelectedCommand
     {
         get => _selectedCommand;
         set
@@ -43,9 +43,9 @@ public class CommandTabViewModel : ObservableObject
         }
     }
 
-    public string Description => SelectedCommand.Description;
+    public string Description => SelectedCommand?.Description ?? string.Empty;
 
-    public ObservableCollection<ParameterViewModel> Parameters { get; private set; }
+    public ObservableCollection<ParameterViewModel> Parameters { get; private set; } = [];
 
     public ObservableCollection<LogEntry> OutputLines { get; } = [];
 
@@ -85,8 +85,7 @@ public class CommandTabViewModel : ObservableObject
     {
         RootDescriptor = descriptor;
         AvailableCommands = new ObservableCollection<CommandDescriptor>(FlattenCommands(descriptor));
-        SelectedCommand = AvailableCommands[0];
-        Parameters = ResolveParametersFor(SelectedCommand);
+        SelectedCommand = AvailableCommands.FirstOrDefault();
 
         ExecuteCommandCommand = new AsyncRelayCommand(ExecuteCommandAsync, () => !IsExecuting);
         ClearOutputCommand = new RelayCommand(ClearOutput);
@@ -110,8 +109,13 @@ public class CommandTabViewModel : ObservableObject
         }
     }
 
-    private ObservableCollection<ParameterViewModel> ResolveParametersFor(CommandDescriptor descriptor)
+    private ObservableCollection<ParameterViewModel> ResolveParametersFor(CommandDescriptor? descriptor)
     {
+        if (descriptor is null)
+        {
+            return [];
+        }
+
         if (_parameterStateByCommand.TryGetValue(descriptor.CommandType, out var parameters))
         {
             return parameters;
@@ -148,6 +152,13 @@ public class CommandTabViewModel : ObservableObject
 
     private async Task ExecuteCommandAsync()
     {
+        var selectedCommand = SelectedCommand;
+        if (selectedCommand is null)
+        {
+            StatusText = "⚠ No command selected.";
+            return;
+        }
+
         var missing = Parameters
             .Where(p => p.Descriptor.IsRequired && !p.HasValue)
             .Select(p => p.Descriptor.DisplayName)
@@ -171,7 +182,7 @@ public class CommandTabViewModel : ObservableObject
         try
         {
             var result = await Task.Run(() =>
-                CommandExecutionService.ExecuteAsync(SelectedCommand, Parameters));
+                CommandExecutionService.ExecuteAsync(selectedCommand, Parameters));
 
             StatusText = result == 0
                 ? "✓ Command completed successfully."
