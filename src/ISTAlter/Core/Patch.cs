@@ -83,10 +83,21 @@ public static partial class Patch
 
         try
         {
-            if (options.Restore && File.Exists(bakFileFullPath))
+            // Handle restore mode: restore from backup and exit
+            if (options.Restore)
             {
-                Log.Debug("Backup detected, restoring {Item}", pendingPatchItem);
-                File.Copy(bakFileFullPath, pendingPatchItemFullPath, overwrite: true);
+                if (File.Exists(bakFileFullPath))
+                {
+                    Log.Debug("Backup detected, restoring {Item}", pendingPatchItem);
+                    File.Copy(bakFileFullPath, pendingPatchItemFullPath, overwrite: true);
+                    Log.Information("{Item}{Indent}[RESTORED]", pendingPatchItem, indent);
+                }
+                else
+                {
+                    Log.Information("{Item}{Indent}[NO BACKUP]", pendingPatchItem, indent);
+                }
+
+                return;
             }
 
             using var module = PatchUtils.LoadModule(pendingPatchItemFullPath);
@@ -149,6 +160,13 @@ public static partial class Patch
                 return;
             }
 
+            // Create backup only when patches will be saved
+            if (!File.Exists(bakFileFullPath))
+            {
+                Log.Debug("Backup file {BakFileFullPath} does not exist, creating backup...", bakFileFullPath);
+                File.Copy(pendingPatchItemFullPath, bakFileFullPath, overwrite: false);
+            }
+
             /*
             if (module.Name == "ISTAGUI.exe")
             {
@@ -167,12 +185,6 @@ public static partial class Patch
                     });
             }
             */
-
-            if (!File.Exists(bakFileFullPath))
-            {
-                Log.Debug("Backup file {BakFileFullPath} does not exist, copy...", bakFileFullPath);
-                File.Copy(pendingPatchItemFullPath, bakFileFullPath, overwrite: false);
-            }
 
             PatchUtils.SetPatchedMark(module);
             PatchUtils.SaveModule(module, patchedFileFullPath);
