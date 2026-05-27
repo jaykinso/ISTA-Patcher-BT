@@ -33,7 +33,7 @@ public class CerebrumancyCommand : OptionalPatchOption, ICommonPatchOption
 
     public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount;
 
-    public ISTAOptions.PatchType PatchType { get; set; } = ISTAOptions.PatchType.B;
+    public ISTAOptions.PatchType PatchType { get; set; } = ISTAOptions.PatchType.BMW;
 
     public ISTAOptions.ModeType Mode { get; set; } = ISTAOptions.ModeType.Standalone;
 

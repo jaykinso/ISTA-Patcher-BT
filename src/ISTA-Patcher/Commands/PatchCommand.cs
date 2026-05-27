@@ -29,7 +29,7 @@ public class PatchCommand : OptionalPatchOption, ICommonPatchOption
 
     public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount;
 
-    public ISTAOptions.PatchType PatchType { get; set; } = ISTAOptions.PatchType.B;
+    public ISTAOptions.PatchType PatchType { get; set; } = ISTAOptions.PatchType.BMW;
 
     public ISTAOptions.ModeType Mode { get; set; } = ISTAOptions.ModeType.Standalone;
 
@@ -79,11 +79,11 @@ public class PatchCommand : OptionalPatchOption, ICommonPatchOption
 
         switch (opts.PatchType)
         {
-            case ISTAOptions.PatchType.B:
+            case ISTAOptions.PatchType.BMW:
                 opts.Include = Global.Config.GetSection("Settings:Default:Include").Get<string[]?>() ?? [];
                 opts.Exclude = Global.Config.GetSection("Settings:Default:Exclude").Get<string[]?>() ?? [];
                 break;
-            case ISTAOptions.PatchType.T:
+            case ISTAOptions.PatchType.Toyota:
                 opts.Include = Global.Config.GetSection("Settings:Toyota:Include").Get<string[]?>() ?? [];
                 opts.Exclude = Global.Config.GetSection("Settings:Toyota:Exclude").Get<string[]?>() ?? [];
                 break;
@@ -111,8 +111,8 @@ public class PatchCommand : OptionalPatchOption, ICommonPatchOption
 
         IPatcherProvider patcherProvider = opts.PatchType switch
         {
-            ISTAOptions.PatchType.B => new DefaultPatcherProvider(opts),
-            ISTAOptions.PatchType.T => new ToyotaPatcherProvider(),
+            ISTAOptions.PatchType.BMW => new DefaultPatcherProvider(opts),
+            ISTAOptions.PatchType.Toyota => new ToyotaPatcherProvider(),
             _ => throw new NotSupportedException(),
         };
 
