@@ -44,6 +44,13 @@ public class HashFileInfo
 
     protected internal HashFileInfo(IReadOnlyList<string> fileInfos)
     {
+        if (fileInfos == null || fileInfos.Count < 2)
+        {
+            throw new ArgumentException(
+                $"Invalid file info format. Expected at least 2 elements, got {fileInfos?.Count ?? 0}",
+                nameof(fileInfos));
+        }
+
         this.FilePath = fileInfos[0].Trim('\uFEFF').Replace('\\', '/');
         this.FileName = Path.GetFileName(this.FilePath);
         this._hash = fileInfos[1];

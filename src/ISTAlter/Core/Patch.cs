@@ -56,6 +56,18 @@ public static partial class Patch
             ? Path.Join(options.TargetPath, pendingPatchItem.Trim('!'))
             : Path.Join(guiBasePath, pendingPatchItem);
 
+        // Normalize and validate path to prevent directory traversal attacks
+        pendingPatchItemFullPath = Path.GetFullPath(pendingPatchItemFullPath);
+        var expectedBasePath = Path.GetFullPath(
+            pendingPatchItem.StartsWith('!') ? options.TargetPath : guiBasePath);
+
+        // Ensure path is within the expected directory
+        if (!pendingPatchItemFullPath.StartsWith(expectedBasePath, StringComparison.OrdinalIgnoreCase))
+        {
+            Log.Error("Path traversal attempt detected: {Item}", pendingPatchItem);
+            return;
+        }
+
         var originalDirPath = Path.GetDirectoryName(pendingPatchItemFullPath);
         var patchedDirPath = Path.Join(originalDirPath, OutputDirName);
         var patchedFileFullPath = Path.Join(patchedDirPath, Path.GetFileName(pendingPatchItem));
