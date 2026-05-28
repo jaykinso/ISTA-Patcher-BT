@@ -141,11 +141,13 @@ public static partial class PatchUtils
                 case Instruction target:
                     hash.Add(indexMap.TryGetValue(target, out var targetIndex) ? targetIndex : -1);
                     break;
+
                 default:
                     if (instr.Operand != null)
                     {
                         Log.Warning("Unhandled operand type {Type} in {Method}", instr.Operand.GetType(), method.FullName);
                     }
+
                     break;
             }
         }
