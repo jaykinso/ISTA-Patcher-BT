@@ -86,7 +86,7 @@
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
                 <TextBox Text="{Binding TextValue}"
-                         Watermark="{Binding Descriptor.Description}"
+                         PlaceholderText="{Binding Descriptor.Description}"
                          HorizontalAlignment="Stretch" />
             </StackPanel>
         </DataTemplate>
@@ -101,7 +101,7 @@
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
                 <TextBox Text="{Binding TextValue}"
-                         Watermark="Comma-separated values"
+                         PlaceholderText="Comma-separated values"
                          AcceptsReturn="True"
                          MinHeight="60"
                          HorizontalAlignment="Stretch" />

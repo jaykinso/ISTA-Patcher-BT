@@ -1,20 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2024-2025 TautCony
 
-// ReSharper disable AccessToDisposedClosure
 namespace ISTAlter.Utils;
 
 using System.Collections;
-using System.Globalization;
-using System.Numerics;
 using System.Resources;
 using dnlib.DotNet;
 using Serilog;
-using SixLabors.Fonts;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Drawing.Processing;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
+using SkiaSharp;
 
 public static class ResourceUtils
 {
@@ -109,55 +102,55 @@ public static class ResourceUtils
 
     public static byte[] AddWatermark(byte[] input, string watermarkText)
     {
-        using var image = Image.Load(input);
-        var fontFamily = SystemFonts.Get("Arial", CultureInfo.CurrentUICulture);
-        var font = fontFamily.CreateFont(32, FontStyle.Regular);
+        using var original = SKBitmap.Decode(input);
+        using var typeface = SKTypeface.FromFamilyName("Arial", SKFontStyle.Normal);
 
-        var textMetrics = TextMeasurer.MeasureBounds(watermarkText, new TextOptions(font));
-        var stepX = textMetrics.Width * 1.2f;
-        var stepY = textMetrics.Height * 1.5f;
-
-        using var watermarkLayer = new Image<Rgba32>(image.Width * 2, image.Height * 3);
-        watermarkLayer.Mutate(ctx =>
+        using var shadowPaint = new SKPaint
         {
-            for (float x = 0; x < watermarkLayer.Height; x += stepX)
+            TextSize = 32,
+            IsAntialias = true,
+            Typeface = typeface,
+            Color = new SKColor(0, 0, 0, (byte)(255 * 0.2f)),
+        };
+        using var textPaint = new SKPaint
+        {
+            TextSize = 32,
+            IsAntialias = true,
+            Typeface = typeface,
+            Color = new SKColor(255, 255, 255, (byte)(255 * 0.6f)),
+        };
+
+        textPaint.GetFontMetrics(out var metrics);
+        var textWidth = textPaint.MeasureText(watermarkText);
+        var textHeight = metrics.Descent - metrics.Ascent;
+        var stepX = textWidth * 1.2f;
+        var stepY = textHeight * 1.5f;
+
+        using var layerBitmap = new SKBitmap(original.Width * 2, original.Height * 3);
+        using var layerCanvas = new SKCanvas(layerBitmap);
+        layerCanvas.Clear(SKColors.Transparent);
+
+        for (var x = 0f; x < layerBitmap.Height; x += stepX)
+        {
+            for (var y = 0f; y < layerBitmap.Width; y += stepY)
             {
-                for (float y = 0; y < watermarkLayer.Width; y += stepY)
-                {
-                    ctx.DrawText(
-                        new RichTextOptions(font)
-                        {
-                            Origin = new PointF(x + 1, y + 1),
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                        },
-                        watermarkText,
-                        Color.Black.WithAlpha(0.2f));
-
-                    ctx.DrawText(
-                        new RichTextOptions(font)
-                        {
-                            Origin = new PointF(x, y),
-                            HorizontalAlignment = HorizontalAlignment.Center,
-                        },
-                        watermarkText,
-                        Color.White.WithAlpha(0.6f));
-                }
+                layerCanvas.DrawText(watermarkText, x + 1, y + 1 - metrics.Ascent, shadowPaint);
+                layerCanvas.DrawText(watermarkText, x, y - metrics.Ascent, textPaint);
             }
-        });
+        }
 
-        watermarkLayer.Mutate(ctx =>
-        {
-            var affine = new AffineTransformBuilder()
-                .AppendRotationDegrees(-27.1828f)
-                .AppendTranslation(new Vector2(-image.Height, -image.Width));
+        using var resultBitmap = new SKBitmap(original.Width, original.Height);
+        using var resultCanvas = new SKCanvas(resultBitmap);
+        resultCanvas.DrawBitmap(original, 0, 0);
 
-            ctx.Transform(affine);
-        });
+        resultCanvas.Save();
+        resultCanvas.Translate(-original.Height, -original.Width);
+        resultCanvas.RotateDegrees(-27.1828f);
+        resultCanvas.DrawBitmap(layerBitmap, 0, 0);
+        resultCanvas.Restore();
 
-        image.Mutate(ctx => ctx.DrawImage(watermarkLayer, 1f));
-
-        using var ms = new MemoryStream();
-        image.SaveAsPng(ms);
-        return ms.ToArray();
+        using var resultImage = SKImage.FromBitmap(resultBitmap);
+        using var data = resultImage.Encode(SKEncodedImageFormat.Png, 100);
+        return data.ToArray();
     }
 }

@@ -5,6 +5,7 @@ namespace ISTAvalon.Views;
 
 using Serilog;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using ISTAvalon.Models;
 
@@ -22,7 +23,7 @@ public partial class MainWindow : Window
             if (sender is MenuItem { Tag: LogEntry entry } && Clipboard is { } clipboard)
             {
                 var text = $"{entry.Timestamp:HH:mm:ss.fff} [{entry.Level}] {entry.Message}";
-                await clipboard.SetTextAsync(text);
+                await ClipboardExtensions.SetTextAsync(clipboard, text);
             }
         }
         catch (Exception ex)

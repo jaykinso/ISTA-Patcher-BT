@@ -110,6 +110,22 @@ public static partial class PatchUtils
             hash.Add(instr.OpCode.Code);
             switch (instr.Operand)
             {
+                case sbyte sb:
+                    hash.Add(sb);
+                    break;
+
+                case byte b:
+                    hash.Add(b);
+                    break;
+
+                case short s:
+                    hash.Add(s);
+                    break;
+
+                case ushort us:
+                    hash.Add(us);
+                    break;
+
                 case string s:
                     hash.Add(s.GetHashCode(StringComparison.Ordinal));
                     break;
@@ -125,6 +141,17 @@ public static partial class PatchUtils
                 case float f:
                     hash.Add(BitConverter.SingleToInt32Bits(f));
                     break;
+                case Local local:
+                    hash.Add(local.Index);
+                    hash.Add(local.Type?.FullName.GetHashCode(StringComparison.Ordinal) ?? 0);
+                    break;
+
+                case Parameter parameter:
+                    hash.Add(parameter.Index);
+                    hash.Add(parameter.MethodSigIndex);
+                    hash.Add(parameter.Type?.FullName.GetHashCode(StringComparison.Ordinal) ?? 0);
+                    break;
+
                 case IFullName fn:
                     hash.Add(fn.FullName.GetHashCode(StringComparison.Ordinal));
                     break;

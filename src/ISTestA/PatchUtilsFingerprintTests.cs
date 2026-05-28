@@ -104,6 +104,54 @@ public class PatchUtilsFingerprintTests
     }
 
     /// <summary>
+    /// Test that local operands are included in the fingerprint.
+    /// </summary>
+    [Test]
+    public void ComputeBodyFingerprint_LocalOperand_ShouldBeHashed()
+    {
+        var method1 = CreateMethodWithLocalOperand(_testModule!.CorLibTypes.Int32);
+        var method2 = CreateMethodWithLocalOperand(_testModule!.CorLibTypes.String);
+
+        var fingerprint1 = ComputeFingerprintViaReflection(method1);
+        var fingerprint2 = ComputeFingerprintViaReflection(method2);
+
+        Assert.That(fingerprint1, Is.Not.EqualTo(fingerprint2),
+            "Methods with different local operand metadata should have different fingerprints");
+    }
+
+    /// <summary>
+    /// Test that parameter operands are included in the fingerprint.
+    /// </summary>
+    [Test]
+    public void ComputeBodyFingerprint_ParameterOperand_ShouldBeHashed()
+    {
+        var method1 = CreateMethodWithParameterOperand(_testModule!.CorLibTypes.Int32, _testModule!.CorLibTypes.String);
+        var method2 = CreateMethodWithParameterOperand(_testModule!.CorLibTypes.String, _testModule!.CorLibTypes.Int32);
+
+        var fingerprint1 = ComputeFingerprintViaReflection(method1);
+        var fingerprint2 = ComputeFingerprintViaReflection(method2);
+
+        Assert.That(fingerprint1, Is.Not.EqualTo(fingerprint2),
+            "Methods with different parameter operand metadata should have different fingerprints");
+    }
+
+    /// <summary>
+    /// Test that sbyte operands are included in the fingerprint.
+    /// </summary>
+    [Test]
+    public void ComputeBodyFingerprint_SByteOperand_ShouldBeHashed()
+    {
+        var method1 = CreateMethodWithSByteOperand(1);
+        var method2 = CreateMethodWithSByteOperand(2);
+
+        var fingerprint1 = ComputeFingerprintViaReflection(method1);
+        var fingerprint2 = ComputeFingerprintViaReflection(method2);
+
+        Assert.That(fingerprint1, Is.Not.EqualTo(fingerprint2),
+            "Methods with different sbyte operands should have different fingerprints");
+    }
+
+    /// <summary>
     /// Test that methods with no body return fingerprint 0.
     /// </summary>
     [Test]
@@ -196,6 +244,76 @@ public class PatchUtilsFingerprintTests
         // Add branch to specific target
         var target = body.Instructions[targetIndex];
         body.Instructions.Add(Instruction.Create(OpCodes.Br, target));
+        body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+        return method;
+    }
+
+    /// <summary>
+    /// Helper method to create a method with a local operand.
+    /// </summary>
+    private MethodDef CreateMethodWithLocalOperand(TypeSig localType)
+    {
+        var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
+        _testModule.Types.Add(typeDef);
+
+        var method = new MethodDefUser("TestMethod",
+            MethodSig.CreateStatic(_testModule.CorLibTypes.Void),
+            MethodAttributes.Public | MethodAttributes.Static);
+        typeDef.Methods.Add(method);
+
+        var body = new CilBody();
+        method.Body = body;
+
+        var local = new Local(localType);
+        body.Variables.Add(local);
+        body.Instructions.Add(Instruction.Create(OpCodes.Ldc_I4_0));
+        body.Instructions.Add(Instruction.Create(OpCodes.Stloc, local));
+        body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+        return method;
+    }
+
+    /// <summary>
+    /// Helper method to create a method with a parameter operand.
+    /// </summary>
+    private MethodDef CreateMethodWithParameterOperand(TypeSig firstParameterType, TypeSig secondParameterType)
+    {
+        var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
+        _testModule.Types.Add(typeDef);
+
+        var method = new MethodDefUser("TestMethod",
+            MethodSig.CreateStatic(_testModule.CorLibTypes.Void, firstParameterType, secondParameterType),
+            MethodAttributes.Public | MethodAttributes.Static);
+        typeDef.Methods.Add(method);
+
+        var body = new CilBody();
+        method.Body = body;
+
+        body.Instructions.Add(Instruction.Create(OpCodes.Ldarg, method.Parameters[1]));
+        body.Instructions.Add(Instruction.Create(OpCodes.Pop));
+        body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+        return method;
+    }
+
+    /// <summary>
+    /// Helper method to create a method with an sbyte operand.
+    /// </summary>
+    private MethodDef CreateMethodWithSByteOperand(sbyte value)
+    {
+        var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
+        _testModule.Types.Add(typeDef);
+
+        var method = new MethodDefUser("TestMethod",
+            MethodSig.CreateStatic(_testModule.CorLibTypes.Int32),
+            MethodAttributes.Public | MethodAttributes.Static);
+        typeDef.Methods.Add(method);
+
+        var body = new CilBody();
+        method.Body = body;
+
+        body.Instructions.Add(Instruction.Create(OpCodes.Ldc_I4_S, value));
         body.Instructions.Add(Instruction.Create(OpCodes.Ret));
 
         return method;

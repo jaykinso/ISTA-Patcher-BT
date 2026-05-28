@@ -3,8 +3,8 @@
 
 using Avalonia;
 using ISTAvalon.Services;
-using Projektanker.Icons.Avalonia;
-using Projektanker.Icons.Avalonia.FontAwesome;
+using Optris.Icons.Avalonia;
+using Optris.Icons.Avalonia.FontAwesome;
 
 namespace ISTAvalon;
 

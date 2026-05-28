@@ -6,6 +6,7 @@ namespace ISTAvalon.ViewModels;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using Avalonia.Threading;
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ISTAvalon.Models;
@@ -146,7 +147,7 @@ public class CommandTabViewModel : ObservableObject
             : null;
         if (clipboard is not null)
         {
-            await clipboard.SetTextAsync(text);
+            await ClipboardExtensions.SetTextAsync(clipboard, text);
         }
     }
 

@@ -11,7 +11,7 @@
                 Margin="4,0,0,0"
                 VerticalAlignment="Stretch" />
         <TextBox Text="{Binding TextValue}"
-                 Watermark="{Binding Descriptor.Description}"
+                 PlaceholderText="{Binding Descriptor.Description}"
                  HorizontalAlignment="Stretch" />
     </DockPanel>
 </UserControl>
