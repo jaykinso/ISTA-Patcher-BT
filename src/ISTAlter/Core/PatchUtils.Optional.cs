@@ -95,14 +95,17 @@ public static partial class PatchUtils
                 return;
             }
 
-            // Replace the empty string parameter with the new connection string
-            // The parameter should be just before the call: ldstr ""
-            var emptyStringInstruction = method.Body.Instructions[indexOfSecondCall - 1];
-            if (emptyStringInstruction.OpCode != OpCodes.Ldstr || !string.IsNullOrEmpty(emptyStringInstruction.Operand as string))
+            // The last parameter before the non-DoIP apiInitExt call should be a string literal.
+            // In older ISTA versions: ldstr "" (empty string)
+            // In ISTA 4.58+: ldstr "Authentication=None;NetworkProtocol=TCP"
+            var lastParamInstruction = method.Body.Instructions[indexOfSecondCall - 1];
+            if (lastParamInstruction.OpCode != OpCodes.Ldstr)
             {
                 Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
+
+            var existingConfigString = lastParamInstruction.Operand as string ?? string.Empty;
 
             // Find the device parameter load to construct the new string
             var get_IPAddress = method.FindOperand<MemberRef>(OpCodes.Callvirt, "System.String \u0042\u004d\u0057.Rheingold.CoreFramework.Contracts.Vehicle.IVciDevice::get_IPAddress()");
@@ -112,17 +115,22 @@ public static partial class PatchUtils
                 return;
             }
 
-            // Replace the empty string load with construction of the new connection string
+            // Build the suffix: prepend RemoteHost and append existing protocol settings if present
+            var suffix = string.IsNullOrEmpty(existingConfigString)
+                ? ";DiagnosticPort=6801;ControlPort=6811"
+                : $";DiagnosticPort=6801;ControlPort=6811;{existingConfigString}";
+
+            // Replace the string load with construction of the new connection string
             var newInstructions = new[]
             {
                 OpCodes.Ldstr.ToInstruction("RemoteHost="),
                 OpCodes.Ldarg_1.ToInstruction(), // device parameter
                 OpCodes.Callvirt.ToInstruction(get_IPAddress),
-                OpCodes.Ldstr.ToInstruction(";DiagnosticPort=6801;ControlPort=6811"),
+                OpCodes.Ldstr.ToInstruction(suffix),
                 OpCodes.Call.ToInstruction(method.Module.Import(typeof(string).GetMethod("Concat", [typeof(string), typeof(string), typeof(string)]))),
             };
 
-            // Remove the original empty string instruction
+            // Remove the original string parameter instruction
             method.Body.Instructions.RemoveAt(indexOfSecondCall - 1);
 
             // Insert the new instructions
@@ -983,6 +991,7 @@ public static partial class PatchUtils
 
     [MotorbikeClamp15Patch]
     [LibraryName("RheingoldDiagnostics.dll")]
+    [UntilVersion("4.58")]
     public static int PatchMotorbikeClamp15(ModuleDefMD module)
     {
         return module.PatchFunction(
@@ -1036,6 +1045,66 @@ public static partial class PatchUtils
 
             // Change the first brfalse target to point to the same target as the value comparison brfalse
             // This transforms (!clamp.HasValue || clamp < 0.1) to (clamp.HasValue && clamp < 0.1)
+            brfalseInstruction.Operand = valueComparisonBrfalse.Operand;
+        }
+    }
+
+    [MotorbikeClamp15Patch]
+    [LibraryName("RheingoldDiagnostics.dll")]
+    [FromVersion("4.58")]
+    public static int PatchMotorbikeClamp15From458(ModuleDefMD module)
+    {
+        return module.PatchFunction(
+            "\u0042\u004d\u0057.Rheingold.Diagnostics.VehicleIdent",
+            "ClearAndReadErrorInfoMemory",
+            "(\u0042\u004d\u0057.Rheingold.CoreFramework.Contracts.IJobServices,System.Func`1<System.Collections.Generic.IDictionary`2<System.String,System.Object>>)System.Void",
+            PatchClamp15CheckFrom458
+        );
+
+        static void PatchClamp15CheckFrom458(MethodDef method)
+        {
+            var instructions = method.Body.Instructions;
+
+            // In ISTA 4.58+, the clamp15 check restructured control flow:
+            // if (clamp != null) { if (!(value < 0.1 & hasValue)) { goto IL_12D; } }
+            // RegisterMessage(); return;
+            // IL_12D: (continue)
+            // When HasValue is false, the outer brfalse.s branches forward to RegisterMessage (warning).
+            // Patch: redirect the outer HasValue brfalse.s to IL_12D to suppress the warning
+            // when no clamp15 reading is available, matching the intent of the original patch.
+            var hasValueCall = method.FindInstruction(OpCodes.Call, "System.Boolean System.Nullable`1<System.Double>::get_HasValue()");
+            if (hasValueCall == null)
+            {
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
+                return;
+            }
+
+            var hasValueIndex = instructions.IndexOf(hasValueCall);
+            if (hasValueIndex == -1 || hasValueIndex >= instructions.Count - 1)
+            {
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
+                return;
+            }
+
+            // The next instruction after HasValue call should be brfalse.s (branches to RegisterMessage when null)
+            var brfalseInstruction = instructions[hasValueIndex + 1];
+            if (brfalseInstruction.OpCode != OpCodes.Brfalse_S)
+            {
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
+                return;
+            }
+
+            // Find the inner brfalse.s that skips to IL_12D (branches when !(value < 0.1 & hasValue) is false)
+            var valueComparisonBrfalse = instructions.Skip(hasValueIndex + 2)
+                .FirstOrDefault(inst => inst.OpCode == OpCodes.Brfalse_S);
+
+            if (valueComparisonBrfalse == null)
+            {
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
+                return;
+            }
+
+            // Redirect the outer HasValue brfalse to skip the warning when clamp is unavailable
             brfalseInstruction.Operand = valueComparisonBrfalse.Operand;
         }
     }

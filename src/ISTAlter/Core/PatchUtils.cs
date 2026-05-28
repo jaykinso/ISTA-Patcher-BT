@@ -101,10 +101,24 @@ public static partial class PatchUtils
 
     [ValidationPatch]
     [LibraryName("ISTAGUI.exe")]
+    [UntilVersion("4.58")]
     public static int PatchMainWindowViewModel(ModuleDefMD module)
     {
         return module.PatchFunction(
             "\u0042\u004d\u0057.Rheingold.ISTAGUI.ViewModels.MainWindowViewModel",
+            "CheckExpirationDate",
+            "()System.Void",
+            DnlibUtils.EmptyingMethod
+        );
+    }
+
+    [ValidationPatch]
+    [LibraryName("ISTAGUI.exe")]
+    [FromVersion("4.58")]
+    public static int PatchMainWindowViewModelService(ModuleDefMD module)
+    {
+        return module.PatchFunction(
+            "\u0042\u004d\u0057.Rheingold.ISTAGUI.Services.MainWindowViewModelService",
             "CheckExpirationDate",
             "()System.Void",
             DnlibUtils.EmptyingMethod
