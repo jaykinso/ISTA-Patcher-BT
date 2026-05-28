@@ -6,6 +6,7 @@ namespace ISTAlter.Core;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using ISTAlter.Core.Patcher;
 using ISTAlter.Core.Patcher.Provider;
@@ -104,27 +105,42 @@ public static partial class Patch
 
             // Patch and print result
             using var child = new SpanHandler(options.Transaction, pendingPatchItem);
-            var result = patcherProvider.Patches.ConvertAll(patch =>
+            var skipLibraries = options.SkipLibrary;
+            var resultBuilder = new StringBuilder(patcherProvider.Patches.Count);
+            var patchedFunctionCount = 0;
+            isPatched = false;
+
+            foreach (var patch in patcherProvider.Patches)
             {
                 var libraryList = IPatcherProvider.ExtractLibrariesConfigFromAttribute(patch.Method);
-                if (options.SkipLibrary.Intersect(libraryList, StringComparer.Ordinal).Any())
+                if (ShouldSkipPatch(skipLibraries, libraryList))
                 {
                     Log.Warning("Skip patch {PatchName} due to library filter", patch.Method.Name);
-                    return 0;
+                    resultBuilder.Append('-');
+                    continue;
                 }
 
                 if (!PatchUtils.IsPatchApplicable(module, patch.Method))
                 {
-                    return 0;
+                    resultBuilder.Append('-');
+                    continue;
                 }
 
                 var patchedCount = patch.Delegator(module);
                 patch.AddAppliedCount(patchedCount);
-                return patchedCount;
-            });
+                if (patchedCount > 0)
+                {
+                    isPatched = true;
+                    patchedFunctionCount += patchedCount;
+                    resultBuilder.Append(patchedCount.ToString("X", CultureInfo.CurrentCulture));
+                }
+                else
+                {
+                    resultBuilder.Append('-');
+                }
+            }
 
-            isPatched = result.Exists(i => i > 0);
-            var resultStr = string.Concat(result.Select(i => i > 0 ? i.ToString("X", CultureInfo.CurrentCulture) : "-"));
+            var resultStr = resultBuilder.ToString();
 
             // Check if at least one patch has been applied
             if (!isPatched)
@@ -162,7 +178,6 @@ public static partial class Patch
             PatchUtils.SaveModule(module, patchedFileFullPath);
 
             Log.Debug("Patched file {PatchedFileFullPath} created", patchedFileFullPath);
-            var patchedFunctionCount = result.Aggregate(0, (c, i) => c + i);
             Log.Information("{Item}{Indent}{Result} [FNC: {PatchedFunctionCount:00}]", pendingPatchItem, indent, resultStr, patchedFunctionCount);
         }
         catch (Exception ex)
@@ -180,6 +195,19 @@ public static partial class Patch
             {
                 File.Delete(patchedFileFullPath);
             }
+        }
+
+        static bool ShouldSkipPatch(string[] skipLibraries, string[] libraryList)
+        {
+            foreach (var skipLibrary in skipLibraries)
+            {
+                if (Array.IndexOf(libraryList, skipLibrary) >= 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

@@ -120,18 +120,32 @@ public static partial class PatchUtils
                     hash.Add(l);
                     break;
                 case double d:
-                    hash.Add(d.GetHashCode());
+                    hash.Add(BitConverter.DoubleToInt64Bits(d));
                     break;
                 case float f:
-                    hash.Add(f.GetHashCode());
+                    hash.Add(BitConverter.SingleToInt32Bits(f));
                     break;
                 case IFullName fn:
                     hash.Add(fn.FullName.GetHashCode(StringComparison.Ordinal));
                     break;
+
+                case IList<Instruction> targets:
+                    hash.Add(targets.Count);
+                    foreach (var target in targets)
+                    {
+                        hash.Add(indexMap.TryGetValue(target, out var targetIdx) ? targetIdx : -1);
+                    }
+
+                    break;
+
                 case Instruction target:
                     hash.Add(indexMap.TryGetValue(target, out var targetIndex) ? targetIndex : -1);
                     break;
                 default:
+                    if (instr.Operand != null)
+                    {
+                        Log.Warning("Unhandled operand type {Type} in {Method}", instr.Operand.GetType(), method.FullName);
+                    }
                     break;
             }
         }
