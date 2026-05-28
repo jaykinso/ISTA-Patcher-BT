@@ -12,7 +12,16 @@ public abstract class ParameterViewModel(ParameterDescriptor descriptor) : Obser
 
     public abstract bool HasValue { get; }
 
+    /// <summary>Human-readable label shown in the UI. Falls back to DisplayName when no description is available.</summary>
+    public string LabelText =>
+        string.IsNullOrEmpty(Descriptor.Description) ? Descriptor.DisplayName : Descriptor.Description;
+
+    /// <summary>CLI option/argument name shown in the tooltip (e.g. --patch-type or &lt;target-path&gt;).</summary>
+    public string TooltipText => Descriptor.CliOption;
+
     public abstract object? GetValue();
+
+    public virtual void ApplyValue(string value) { }
 
     public static ParameterViewModel Create(ParameterDescriptor descriptor)
     {
@@ -44,6 +53,14 @@ public class BoolParameterViewModel(ParameterDescriptor descriptor) : ParameterV
     public override bool HasValue => true;
 
     public override object? GetValue() => IsChecked;
+
+    public override void ApplyValue(string value)
+    {
+        if (bool.TryParse(value, out var b))
+        {
+            IsChecked = b;
+        }
+    }
 }
 
 public class EnumParameterViewModel(ParameterDescriptor descriptor) : ParameterViewModel(descriptor)
@@ -62,6 +79,14 @@ public class EnumParameterViewModel(ParameterDescriptor descriptor) : ParameterV
 
     public override object? GetValue() =>
         SelectedValue != null ? Enum.Parse(Descriptor.PropertyType, SelectedValue) : null;
+
+    public override void ApplyValue(string value)
+    {
+        if (Descriptor.EnumValues.Contains(value, StringComparer.OrdinalIgnoreCase))
+        {
+            SelectedValue = Descriptor.EnumValues.First(v => string.Equals(v, value, StringComparison.OrdinalIgnoreCase));
+        }
+    }
 }
 
 public class NumericParameterViewModel : ParameterViewModel
@@ -100,6 +125,14 @@ public class NumericParameterViewModel : ParameterViewModel
     public override bool HasValue => true;
 
     public override object? GetValue() => Convert.ChangeType(NumericValue, Descriptor.PropertyType);
+
+    public override void ApplyValue(string value)
+    {
+        if (decimal.TryParse(value, out var d))
+        {
+            NumericValue = d;
+        }
+    }
 }
 
 public class StringParameterViewModel(ParameterDescriptor descriptor) : ParameterViewModel(descriptor)
@@ -115,6 +148,8 @@ public class StringParameterViewModel(ParameterDescriptor descriptor) : Paramete
     public override bool HasValue => !string.IsNullOrWhiteSpace(TextValue);
 
     public override object? GetValue() => TextValue;
+
+    public override void ApplyValue(string value) => TextValue = value;
 }
 
 public class PathParameterViewModel(ParameterDescriptor descriptor) : ParameterViewModel(descriptor)
@@ -130,6 +165,8 @@ public class PathParameterViewModel(ParameterDescriptor descriptor) : ParameterV
     public override bool HasValue => !string.IsNullOrWhiteSpace(TextValue);
 
     public override object? GetValue() => TextValue;
+
+    public override void ApplyValue(string value) => TextValue = value;
 }
 
 public class StringArrayParameterViewModel : ParameterViewModel
@@ -151,4 +188,6 @@ public class StringArrayParameterViewModel : ParameterViewModel
 
     public override object? GetValue() =>
         TextValue?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? [];
+
+    public override void ApplyValue(string value) => TextValue = value;
 }

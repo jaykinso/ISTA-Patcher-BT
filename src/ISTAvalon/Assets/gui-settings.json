@@ -1,0 +1,10 @@
+{
+  "Theme": "Default",
+  "Presets": {
+    "patch": {
+      "PatchType": "BMW",
+      "MaxDegreeOfParallelism": "4",
+      "MarketLanguage": "en-US"
+    }
+  }
+}

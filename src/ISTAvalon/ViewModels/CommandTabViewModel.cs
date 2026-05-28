@@ -82,16 +82,25 @@ public class CommandTabViewModel : ObservableObject
 
     public ICommand ToggleLogPanelCommand { get; }
 
-    public CommandTabViewModel(CommandDescriptor descriptor)
+    public ICommand ResetToPresetCommand { get; }
+
+    public bool HasPreset { get; }
+
+    private readonly IReadOnlyDictionary<string, string>? _preset;
+
+    public CommandTabViewModel(CommandDescriptor descriptor, IReadOnlyDictionary<string, string>? preset = null)
     {
+        _preset = preset;
         RootDescriptor = descriptor;
         AvailableCommands = new ObservableCollection<CommandDescriptor>(FlattenCommands(descriptor));
         SelectedCommand = AvailableCommands.FirstOrDefault();
 
+        HasPreset = preset is { Count: > 0 };
         ExecuteCommandCommand = new AsyncRelayCommand(ExecuteCommandAsync, () => !IsExecuting);
         ClearOutputCommand = new RelayCommand(ClearOutput);
         CopyAllCommand = new AsyncRelayCommand(CopyAllAsync);
         ToggleLogPanelCommand = new RelayCommand(() => IsLogPanelExpanded = !IsLogPanelExpanded);
+        ResetToPresetCommand = new RelayCommand(ResetToPreset, () => HasPreset);
     }
 
     private static IReadOnlyList<CommandDescriptor> FlattenCommands(CommandDescriptor root)
@@ -127,8 +136,33 @@ public class CommandTabViewModel : ObservableObject
                 .OrderByDescending(p => p.IsRequired)
                 .Select(ParameterViewModel.Create));
 
+        ApplyPresetToParameters(parameters);
         _parameterStateByCommand[descriptor.CommandType] = parameters;
         return parameters;
+    }
+
+    private void ApplyPresetToParameters(IEnumerable<ParameterViewModel> parameters)
+    {
+        if (_preset is null)
+        {
+            return;
+        }
+
+        foreach (var param in parameters)
+        {
+            if (_preset.TryGetValue(param.Descriptor.Name, out var presetValue))
+            {
+                param.ApplyValue(presetValue);
+            }
+        }
+    }
+
+    private void ResetToPreset()
+    {
+        foreach (var paramCollection in _parameterStateByCommand.Values)
+        {
+            ApplyPresetToParameters(paramCollection);
+        }
     }
 
     private void ClearOutput()

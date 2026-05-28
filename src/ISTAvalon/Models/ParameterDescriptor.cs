@@ -27,5 +27,7 @@ public sealed class ParameterDescriptor
 
     public string[] EnumValues { get; init; } = [];
 
+    public string CliOption { get; init; } = string.Empty;
+
     public required PropertyInfo PropertyInfo { get; init; }
 }

@@ -266,8 +266,9 @@ public static class CommandDiscoveryService
 
         var propertyType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
         var kind = DetermineKind(prop, propertyType, optAttr, argAttr);
-        var enumValues = propertyType.IsEnum ? Enum.GetNames(propertyType) : [];
+        var enumValues = propertyType.IsEnum ? GetUniqueEnumNames(propertyType) : [];
         var defaultValue = GetDefaultValue(prop, propertyType, kind);
+        var cliOption = isArgument ? $"<{displayName}>" : $"--{displayName}";
 
         return new ParameterDescriptor
         {
@@ -281,6 +282,7 @@ public static class CommandDiscoveryService
             IsParentOption = isParentOption,
             DefaultValue = defaultValue,
             EnumValues = enumValues,
+            CliOption = cliOption,
             PropertyInfo = prop,
         };
     }
@@ -337,6 +339,22 @@ public static class CommandDiscoveryService
         var name = prop.Name;
         return name.Contains("Directory", StringComparison.OrdinalIgnoreCase) ||
                name.Contains("Folder", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string[] GetUniqueEnumNames(Type enumType)
+    {
+        var seen = new HashSet<long>();
+        var result = new List<string>();
+        foreach (var name in Enum.GetNames(enumType))
+        {
+            var val = Convert.ToInt64(Enum.Parse(enumType, name));
+            if (seen.Add(val))
+            {
+                result.Add(name);
+            }
+        }
+
+        return [.. result];
     }
 
     private static bool IsIntegerType(Type type)

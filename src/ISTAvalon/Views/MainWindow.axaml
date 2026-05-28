@@ -22,9 +22,9 @@
         <DataTemplate DataType="vm:BoolParameterViewModel">
             <StackPanel Margin="0,4">
                 <CheckBox IsChecked="{Binding IsChecked}"
-                          ToolTip.Tip="{Binding Descriptor.Description}">
+                          ToolTip.Tip="{Binding TooltipText}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Descriptor.DisplayName}" />
+                        <TextBlock Text="{Binding LabelText}" />
                         <TextBlock Text=" *" Foreground="Red"
                                    IsVisible="{Binding Descriptor.IsRequired}" />
                     </StackPanel>
@@ -36,8 +36,8 @@
         <DataTemplate DataType="vm:EnumParameterViewModel">
             <StackPanel Margin="0,4" Spacing="2">
                 <StackPanel Orientation="Horizontal"
-                            ToolTip.Tip="{Binding Descriptor.Description}">
-                    <TextBlock Text="{Binding Descriptor.DisplayName}" />
+                            ToolTip.Tip="{Binding TooltipText}">
+                    <TextBlock Text="{Binding LabelText}" />
                     <TextBlock Text=" *" Foreground="Red"
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
@@ -51,8 +51,8 @@
         <DataTemplate DataType="vm:NumericParameterViewModel">
             <StackPanel Margin="0,4" Spacing="2">
                 <StackPanel Orientation="Horizontal"
-                            ToolTip.Tip="{Binding Descriptor.Description}">
-                    <TextBlock Text="{Binding Descriptor.DisplayName}" />
+                            ToolTip.Tip="{Binding TooltipText}">
+                    <TextBlock Text="{Binding LabelText}" />
                     <TextBlock Text=" *" Foreground="Red"
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
@@ -67,8 +67,8 @@
         <DataTemplate DataType="vm:PathParameterViewModel">
             <StackPanel Margin="0,4" Spacing="2">
                 <StackPanel Orientation="Horizontal"
-                            ToolTip.Tip="{Binding Descriptor.Description}">
-                    <TextBlock Text="{Binding Descriptor.DisplayName}" />
+                            ToolTip.Tip="{Binding TooltipText}">
+                    <TextBlock Text="{Binding LabelText}" />
                     <TextBlock Text=" *" Foreground="Red"
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
@@ -80,13 +80,12 @@
         <DataTemplate DataType="vm:StringParameterViewModel">
             <StackPanel Margin="0,4" Spacing="2">
                 <StackPanel Orientation="Horizontal"
-                            ToolTip.Tip="{Binding Descriptor.Description}">
-                    <TextBlock Text="{Binding Descriptor.DisplayName}" />
+                            ToolTip.Tip="{Binding TooltipText}">
+                    <TextBlock Text="{Binding LabelText}" />
                     <TextBlock Text=" *" Foreground="Red"
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
                 <TextBox Text="{Binding TextValue}"
-                         PlaceholderText="{Binding Descriptor.Description}"
                          HorizontalAlignment="Stretch" />
             </StackPanel>
         </DataTemplate>
@@ -95,8 +94,8 @@
         <DataTemplate DataType="vm:StringArrayParameterViewModel">
             <StackPanel Margin="0,4" Spacing="2">
                 <StackPanel Orientation="Horizontal"
-                            ToolTip.Tip="{Binding Descriptor.Description}">
-                    <TextBlock Text="{Binding Descriptor.DisplayName}" />
+                            ToolTip.Tip="{Binding TooltipText}">
+                    <TextBlock Text="{Binding LabelText}" />
                     <TextBlock Text=" *" Foreground="Red"
                                IsVisible="{Binding Descriptor.IsRequired}" />
                 </StackPanel>
@@ -110,7 +109,8 @@
     </Window.DataTemplates>
 
     <DockPanel Margin="8">
-        <TabControl ItemsSource="{Binding CommandTabs}"
+        <Grid>
+            <TabControl ItemsSource="{Binding CommandTabs}"
                     SelectedItem="{Binding SelectedTab}">
             <TabControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:CommandTabViewModel">
@@ -137,6 +137,14 @@
                                         Command="{Binding ExecuteCommandCommand}"
                                         Padding="16,8"
                                         HorizontalContentAlignment="Center" />
+                                <Button DockPanel.Dock="Right"
+                                        ToolTip.Tip="Reset parameters to recommended defaults"
+                                        Command="{Binding ResetToPresetCommand}"
+                                        IsVisible="{Binding HasPreset}"
+                                        Margin="0,0,4,0"
+                                        Padding="8,8">
+                                    <i:Icon Value="fa-solid fa-rotate-left" FontSize="13" />
+                                </Button>
                                 <TextBlock Text="{Binding StatusText}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,12,0" />
@@ -274,5 +282,17 @@
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
+
+            <!-- Theme toggle overlaid on the tab strip, top-right corner -->
+            <Button HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="0,2,2,0"
+                    ZIndex="1"
+                    Command="{Binding ToggleThemeCommand}"
+                    ToolTip.Tip="{Binding ThemeTooltip}"
+                    Padding="6,4">
+                <i:Icon Value="{Binding ThemeIcon}" FontSize="14" />
+            </Button>
+        </Grid>
     </DockPanel>
 </Window>
