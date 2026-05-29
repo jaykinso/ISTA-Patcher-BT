@@ -456,7 +456,7 @@ public static partial class PatchUtils
 
                     OpCodes.Ldarg_0.ToInstruction(),
                     OpCodes.Ldfld.ToInstruction(titleField),
-                    OpCodes.Ldstr.ToInstruction(GetCoefficients().GetString(12)),
+                    OpCodes.Ldstr.ToInstruction(PatcherName),
                     OpCodes.Callvirt.ToInstruction(containsDef),
                     OpCodes.Brfalse_S.ToInstruction(label),
 
