@@ -1,5 +1,19 @@
 ﻿# Changelog
 
+## 2.5.1 / 2026-05-30
+- Feat - Add patches for ISTA 4.58 compatibility
+- Feat - Update `UserEnvironmentProvider` patch
+- Feat - Improve brand check
+- Feat - Add ISTAvalon theme toggle, parameter presets, and CLI option tooltips
+- Feat - Rename `PatchType` values to `BMW` and `Toyota` while preserving legacy aliases
+- Fix - Verify patches by comparing IL body fingerprints after patching
+- Fix - Improve patch restore, backup creation, skip-library handling, and patch result observability
+- Fix - Add path validation to prevent directory traversal during single-file patching
+- Fix - Fix command switch null handling in ISTAvalon
+- Perf - Make IL body fingerprint computation run in O(n)
+- Chore - Upgrade dependencies to latest versions
+- Chore - Add broader unit test and coverage workflow coverage
+
 ## 2.5.0 / 2026-02-26
 - Feat - Release ISTAvalon GUI application
 - Feat - Add support for custom patch definitions in configuration

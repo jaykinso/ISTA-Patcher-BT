@@ -10,6 +10,7 @@ NC='\033[0m' # No Color
 base_dir="${1:-$PWD}"
 base_dir=$(realpath "$base_dir")
 src_dir="$base_dir/src"
+src_rel="src"
 
 if [ ! -d "$src_dir" ]; then
     echo -e "${RED}[ERROR]${NC} src directory not found: $src_dir"
@@ -25,51 +26,123 @@ echo "Checking copyright years in file headers against git history..."
 echo "================================================================"
 echo
 
-# Find all C# files
-find "$src_dir" -name "*.cs" -type f | while read -r file; do
-    # Convert to absolute path
-    abs_file=$(realpath "$file")
+declare -A tracked_files
+declare -A first_years
+declare -A last_years
+declare -A untracked_files
+files=()
 
-    # Get the first and last commit years for this file
-    rel_file="${file#"$base_dir"/}"
-    display_path="$rel_file:1"
-    if ! git -C "$base_dir" ls-files --error-unmatch "$rel_file" >/dev/null 2>&1; then
-        if git -C "$base_dir" ls-files --others --exclude-standard -- "$rel_file" | grep -q .; then
-            echo -e "${YELLOW}[UNTRACKED]${NC} $display_path"
-        fi
+while IFS= read -r -d '' rel_file; do
+    tracked_files["$rel_file"]=1
+    files+=("$rel_file")
+done < <(git -C "$base_dir" ls-files -z -- "$src_rel/**/*.cs" "$src_rel/*.cs")
+
+while IFS= read -r -d '' rel_file; do
+    untracked_files["$rel_file"]=1
+    files+=("$rel_file")
+done < <(git -C "$base_dir" ls-files --others --exclude-standard -z -- "$src_rel/**/*.cs" "$src_rel/*.cs")
+
+current_year=""
+while IFS= read -r line; do
+    if [[ "$line" == __YEAR__* ]]; then
+        current_year="${line#__YEAR__}"
         continue
     fi
-    first_year=$(git -C "$base_dir" log --follow --find-renames --format=%ad --date=format:%Y "$rel_file" 2>/dev/null | tail -1)
-    last_year=$(git -C "$base_dir" log --follow --find-renames --format=%ad --date=format:%Y "$rel_file" 2>/dev/null | head -1)
+
+    if [ -z "$current_year" ] || [ -z "$line" ]; then
+        continue
+    fi
+
+    status="${line%%$'\t'*}"
+    paths="${line#*$'\t'}"
+
+    case "$status" in
+        A*|M*)
+            path="$paths"
+            if [[ "$path" != *.cs ]]; then
+                continue
+            fi
+            if [ -z "${first_years[$path]}" ]; then
+                first_years["$path"]="$current_year"
+            fi
+            last_years["$path"]="$current_year"
+            ;;
+        R*)
+            old_path="${paths%%$'\t'*}"
+            new_path="${paths#*$'\t'}"
+            if [[ "$new_path" != *.cs ]]; then
+                continue
+            fi
+            if [ -n "${first_years[$old_path]}" ]; then
+                first_years["$new_path"]="${first_years[$old_path]}"
+                unset "first_years[$old_path]"
+            elif [ -z "${first_years[$new_path]}" ]; then
+                first_years["$new_path"]="$current_year"
+            fi
+            last_years["$new_path"]="$current_year"
+            unset "last_years[$old_path]"
+            ;;
+    esac
+done < <(git -C "$base_dir" log --reverse --find-renames --format="__YEAR__%ad" --date=format:%Y --name-status -- "$src_rel")
+
+for rel_file in "${files[@]}"; do
+    display_path="$rel_file:1"
+    if [ -n "${untracked_files[$rel_file]}" ]; then
+        echo -e "${YELLOW}[UNTRACKED]${NC} $display_path"
+        continue
+    fi
+    if [ -z "${tracked_files[$rel_file]}" ]; then
+        continue
+    fi
+
+    first_year="${first_years[$rel_file]}"
+    last_year="${last_years[$rel_file]}"
 
     # Skip if file is not in git history
     if [ -z "$first_year" ]; then
         continue
     fi
 
-    # Extract copyright years from file header
-    header_match=$(head -5 "$file" | grep -in "SPDX-FileCopyrightText" | head -1)
-    if [ -z "$header_match" ]; then
-        header_match=$(head -5 "$file" | grep -in "Copyright" | head -1)
-    fi
+    file="$base_dir/$rel_file"
 
-    if [ -n "$header_match" ]; then
-        header_line_number=$(echo "$header_match" | cut -d':' -f1)
-        header_line=$(echo "$header_match" | cut -d':' -f2-)
-        display_path="$rel_file:$header_line_number"
+    # Extract copyright years from file header
+    header_line=""
+    header_line_number=""
+    fallback_header_line=""
+    fallback_header_line_number=""
+    line_number=0
+    while IFS= read -r line && [ "$line_number" -lt 5 ]; do
+        line_number=$((line_number + 1))
+        if [[ "$line" == *"SPDX-FileCopyrightText"* ]]; then
+            header_line="$line"
+            header_line_number="$line_number"
+            break
+        fi
+        if [ -z "$fallback_header_line" ] && [[ "$line" == *"Copyright"* ]]; then
+            fallback_header_line="$line"
+            fallback_header_line_number="$line_number"
+        fi
+    done < "$file"
+
+    if [ -z "$header_line" ]; then
+        header_line="$fallback_header_line"
+        header_line_number="$fallback_header_line_number"
     fi
 
     if [ -z "$header_line" ]; then
         echo -e "${RED}[MISSING]${NC} $display_path - No copyright header found"
+        echo -e "  Git history: $first_year-$last_year"
+        echo -e "  Expected:    Copyright $first_year-$last_year"
         continue
     fi
+    display_path="$rel_file:$header_line_number"
 
     # Extract year range from header (handles both "YYYY" and "YYYY-YYYY" formats)
-    if echo "$header_line" | grep -qE "Copyright [0-9]{4}-[0-9]{4}"; then
-        header_first_year=$(echo "$header_line" | grep -oE "[0-9]{4}-[0-9]{4}" | cut -d'-' -f1)
-        header_last_year=$(echo "$header_line" | grep -oE "[0-9]{4}-[0-9]{4}" | cut -d'-' -f2)
-    elif echo "$header_line" | grep -qE "Copyright [0-9]{4}"; then
-        header_first_year=$(echo "$header_line" | grep -oE "Copyright [0-9]{4}" | grep -oE "[0-9]{4}")
+    if [[ "$header_line" =~ Copyright[[:space:]]+([0-9]{4})-([0-9]{4}) ]]; then
+        header_first_year="${BASH_REMATCH[1]}"
+        header_last_year="${BASH_REMATCH[2]}"
+    elif [[ "$header_line" =~ Copyright[[:space:]]+([0-9]{4}) ]]; then
+        header_first_year="${BASH_REMATCH[1]}"
         header_last_year="$header_first_year"
     else
         echo -e "${RED}[ERROR]${NC} $display_path - Cannot parse copyright years from: $header_line"
@@ -79,13 +152,10 @@ find "$src_dir" -name "*.cs" -type f | while read -r file; do
     # Compare years
     status="OK"
     message=""
-    # Check first year - if header year is less than git year, it's just a warning
+    # A header can predate path history after moves, splits, or extracted files. Treat
+    # that as acceptable; git history is only a lower bound for the current path.
     if [ "$first_year" != "$header_first_year" ]; then
-        if [ "$header_first_year" -lt "$first_year" ]; then
-            status="WARNING"
-            is_warning=true
-            message="First year in header ($header_first_year) is earlier than git history ($first_year)"
-        else
+        if [ "$header_first_year" -gt "$first_year" ]; then
             status="MISMATCH"
             message="First year mismatch: git=$first_year, header=$header_first_year"
         fi
