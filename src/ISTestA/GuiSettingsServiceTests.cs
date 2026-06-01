@@ -199,4 +199,102 @@ public class GuiSettingsServiceTests
 
         Assert.That(loaded.Theme, Is.EqualTo("Light"));
     }
+
+    // ────────────── GetPresetFor ──────────────
+
+    [Test]
+    public void GetPresetFor_ExistingKey_ReturnsPresetValues()
+    {
+        var settings = new GuiSettings
+        {
+            Presets = new Dictionary<string, Dictionary<string, string>>
+            {
+                ["patch"] = new() { ["PatchType"] = "BMW", ["MaxDegreeOfParallelism"] = "4" },
+            },
+        };
+
+        var preset = settings.GetPresetFor("patch");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(preset, Is.Not.Null);
+            Assert.That(preset!["PatchType"], Is.EqualTo("BMW"));
+            Assert.That(preset["MaxDegreeOfParallelism"], Is.EqualTo("4"));
+        }
+    }
+
+    [Test]
+    public void GetPresetFor_MissingKey_ReturnsNull()
+    {
+        var settings = new GuiSettings
+        {
+            Presets = new Dictionary<string, Dictionary<string, string>>
+            {
+                ["patch"] = new() { ["PatchType"] = "BMW" },
+            },
+        };
+
+        Assert.That(settings.GetPresetFor("ilean"), Is.Null);
+    }
+
+    [Test]
+    public void GetPresetFor_EmptyPresets_ReturnsNull()
+    {
+        var settings = new GuiSettings();
+        Assert.That(settings.GetPresetFor("patch"), Is.Null);
+    }
+
+    [Test]
+    public void Load_RealGuiSettingsJson_ContainsPatchPreset()
+    {
+        // The real gui-settings.json is copied to AppContext.BaseDirectory by the build system.
+        var settings = GuiSettingsService.Load();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(settings.Presets, Does.ContainKey("patch"),
+                "gui-settings.json must define a preset for the 'patch' command");
+            var preset = settings.GetPresetFor("patch");
+            Assert.That(preset, Is.Not.Null);
+            Assert.That(preset!["PatchType"], Is.EqualTo("BMW"));
+            Assert.That(preset["MaxDegreeOfParallelism"], Is.EqualTo("4"));
+            Assert.That(preset["MarketLanguage"], Is.EqualTo("en-US"));
+        }
+    }
+
+    [Test]
+    public void Load_WithMultiplePresets_AllLoaded()
+    {
+        var backup = _settingsFilePath + ".bak";
+        var existed = File.Exists(_settingsFilePath);
+        if (existed) File.Move(_settingsFilePath, backup);
+
+        try
+        {
+            var json = """
+                {
+                  "Theme": "Default",
+                  "Presets": {
+                    "patch": { "PatchType": "Toyota", "MaxDegreeOfParallelism": "2" },
+                    "ilean":  { "Verbose": "true" }
+                  }
+                }
+                """;
+            File.WriteAllText(_settingsFilePath, json);
+
+            var settings = GuiSettingsService.Load();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(settings.Presets.Keys, Is.EquivalentTo(new[] { "patch", "ilean" }));
+                Assert.That(settings.GetPresetFor("patch")!["PatchType"], Is.EqualTo("Toyota"));
+                Assert.That(settings.GetPresetFor("ilean")!["Verbose"], Is.EqualTo("true"));
+            }
+        }
+        finally
+        {
+            File.Delete(_settingsFilePath);
+            if (existed) File.Move(backup, _settingsFilePath);
+        }
+    }
 }

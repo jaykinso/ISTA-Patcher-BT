@@ -299,4 +299,336 @@ public class UIAutomationTests
 
         window.Close();
     }
+
+    // =========================================================================
+    // 7. Preset tests — ViewModel layer (no headless required)
+    //    These tests construct CommandTabViewModel directly with an explicit
+    //    preset dict that mirrors the "patch" entry in gui-settings.json,
+    //    so they are deterministic regardless of the deployed file on disk.
+    // =========================================================================
+
+    // --- ViewModel-level: HasPreset flag ---
+
+    [Test]
+    public void Preset_PatchTab_HasPreset_IsTrue_WhenPresetDictProvided()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+
+        var preset = new Dictionary<string, string> { ["PatchType"] = "BMW" };
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        Assert.That(tabVm.HasPreset, Is.True);
+    }
+
+    [Test]
+    public void Preset_PatchTab_HasPreset_IsFalse_WhenNoPresetProvided()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset: null);
+
+        Assert.That(tabVm.HasPreset, Is.False);
+    }
+
+    // --- ViewModel-level: preset values applied to parameters ---
+
+    [Test]
+    public void Preset_PatchTab_AppliesEnumValue_PatchType_BMW()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+        var preset = new Dictionary<string, string> { ["PatchType"] = "BMW" };
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        var patchTypeParam = tabVm.Parameters
+            .OfType<EnumParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "PatchType");
+
+        Assert.That(patchTypeParam, Is.Not.Null, "PatchType parameter not found on patch tab");
+        Assert.That(patchTypeParam!.SelectedValue, Is.EqualTo("BMW"));
+    }
+
+    [Test]
+    public void Preset_PatchTab_AppliesNumericValue_MaxDegreeOfParallelism_4()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+        var preset = new Dictionary<string, string> { ["MaxDegreeOfParallelism"] = "4" };
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        var parallelParam = tabVm.Parameters
+            .OfType<NumericParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "MaxDegreeOfParallelism");
+
+        Assert.That(parallelParam, Is.Not.Null, "MaxDegreeOfParallelism parameter not found on patch tab");
+        Assert.That(parallelParam!.NumericValue, Is.EqualTo(4m));
+    }
+
+    [Test]
+    public void Preset_PatchTab_AppliesStringValue_MarketLanguage_EnUS()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+        var preset = new Dictionary<string, string> { ["MarketLanguage"] = "en-US" };
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        var languageParam = tabVm.Parameters
+            .OfType<StringParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "MarketLanguage");
+
+        Assert.That(languageParam, Is.Not.Null, "MarketLanguage parameter not found on patch tab");
+        Assert.That(languageParam!.TextValue, Is.EqualTo("en-US"));
+    }
+
+    [Test]
+    public void Preset_PatchTab_AllThreePresetValues_AppliedTogether()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+        var preset = new Dictionary<string, string>
+        {
+            ["PatchType"] = "BMW",
+            ["MaxDegreeOfParallelism"] = "4",
+            ["MarketLanguage"] = "en-US",
+        };
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        var patchType = tabVm.Parameters.OfType<EnumParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "PatchType");
+        var parallelism = tabVm.Parameters.OfType<NumericParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "MaxDegreeOfParallelism");
+        var language = tabVm.Parameters.OfType<StringParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "MarketLanguage");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(patchType?.SelectedValue, Is.EqualTo("BMW"));
+            Assert.That(parallelism?.NumericValue, Is.EqualTo(4m));
+            Assert.That(language?.TextValue, Is.EqualTo("en-US"));
+        }
+    }
+
+    // --- ViewModel-level: ResetToPresetCommand ---
+
+    [Test]
+    public void Preset_ResetCommand_CanExecute_WhenHasPreset()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+        var preset = new Dictionary<string, string> { ["PatchType"] = "BMW" };
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        Assert.That(tabVm.ResetToPresetCommand.CanExecute(null), Is.True);
+    }
+
+    [Test]
+    public void Preset_ResetCommand_CannotExecute_WhenNoPreset()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset: null);
+
+        Assert.That(tabVm.ResetToPresetCommand.CanExecute(null), Is.False);
+    }
+
+    [Test]
+    public void Preset_ModifyParameter_ThenResetCommand_RestoresPresetValues()
+    {
+        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var patchDescriptor = descriptors.First(d => d.Name == "patch");
+        var preset = new Dictionary<string, string>
+        {
+            ["PatchType"] = "BMW",
+            ["MaxDegreeOfParallelism"] = "4",
+            ["MarketLanguage"] = "en-US",
+        };
+
+        var tabVm = new CommandTabViewModel(patchDescriptor, preset);
+
+        // Modify parameters away from preset values
+        var patchType = tabVm.Parameters.OfType<EnumParameterViewModel>()
+            .First(p => p.Descriptor.Name == "PatchType");
+        var parallelism = tabVm.Parameters.OfType<NumericParameterViewModel>()
+            .First(p => p.Descriptor.Name == "MaxDegreeOfParallelism");
+        var language = tabVm.Parameters.OfType<StringParameterViewModel>()
+            .First(p => p.Descriptor.Name == "MarketLanguage");
+
+        patchType.SelectedValue = "Toyota";
+        parallelism.NumericValue = 16m;
+        language.TextValue = "de-DE";
+
+        // Confirm modified
+        Assert.That(patchType.SelectedValue, Is.EqualTo("Toyota"));
+
+        // Reset to preset
+        tabVm.ResetToPresetCommand.Execute(null);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(patchType.SelectedValue, Is.EqualTo("BMW"),
+                "PatchType should be restored to preset value");
+            Assert.That(parallelism.NumericValue, Is.EqualTo(4m),
+                "MaxDegreeOfParallelism should be restored to preset value");
+            Assert.That(language.TextValue, Is.EqualTo("en-US"),
+                "MarketLanguage should be restored to preset value");
+        }
+    }
+
+    // =========================================================================
+    // 8. Preset tests — Visual/headless layer ([AvaloniaTest])
+    //    These tests use MainWindowViewModel() which loads the real
+    //    gui-settings.json from the test output directory, validating the full
+    //    data flow from file → service → ViewModel → rendered UI.
+    // =========================================================================
+
+    [AvaloniaTest]
+    public void Preset_PatchTab_ResetButton_IsVisible_InUI()
+    {
+        var vm = new MainWindowViewModel();
+        var window = new MainWindow { DataContext = vm, Width = 1100, Height = 700 };
+        window.Show();
+
+        var patchTab = vm.CommandTabs.FirstOrDefault(t => t.Name == "patch");
+        Assert.That(patchTab, Is.Not.Null, "'patch' tab must exist");
+        Assert.That(patchTab!.HasPreset, Is.True,
+            "patch tab should have a preset from gui-settings.json");
+
+        vm.SelectedTab = patchTab;
+        Dispatcher.UIThread.RunJobs();
+
+        // The Reset button has a unique tooltip; IsVisible is data-bound to HasPreset
+        var resetBtn = window.GetVisualDescendants()
+            .OfType<Button>()
+            .FirstOrDefault(b => b.IsEffectivelyVisible
+                && ToolTip.GetTip(b)?.ToString()?.Contains("Reset") == true);
+
+        var frame = window.CaptureRenderedFrame();
+        frame?.Save(Path.Combine(ScreenshotDir, "Preset_PatchTab_ResetButtonVisible.png"));
+
+        Assert.That(resetBtn, Is.Not.Null,
+            "Reset button (ToolTip contains 'Reset') should be visible on the patch tab");
+
+        window.Close();
+    }
+
+    [AvaloniaTest]
+    public void Preset_NonPresetTab_ResetButton_IsNotVisible_InUI()
+    {
+        var vm = new MainWindowViewModel();
+        var window = new MainWindow { DataContext = vm, Width = 1100, Height = 700 };
+        window.Show();
+
+        // "ilean" and "crypto" have no preset entry in gui-settings.json
+        foreach (var tabName in new[] { "ilean", "crypto" })
+        {
+            var tab = vm.CommandTabs.FirstOrDefault(t => t.Name == tabName);
+            if (tab is null) continue;
+
+            vm.SelectedTab = tab;
+            Dispatcher.UIThread.RunJobs();
+
+            var resetBtn = window.GetVisualDescendants()
+                .OfType<Button>()
+                .FirstOrDefault(b => b.IsEffectivelyVisible
+                    && ToolTip.GetTip(b)?.ToString()?.Contains("Reset") == true);
+
+            Assert.That(resetBtn, Is.Null,
+                $"Reset button should NOT be visible on the '{tabName}' tab (no preset)");
+        }
+
+        window.Close();
+    }
+
+    [AvaloniaTest]
+    public void Preset_PatchTab_ParameterValues_MatchFile_InUI()
+    {
+        // MainWindowViewModel loads gui-settings.json → verifies the full pipeline.
+        var vm = new MainWindowViewModel();
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+
+        var patchTab = vm.CommandTabs.FirstOrDefault(t => t.Name == "patch");
+        Assert.That(patchTab, Is.Not.Null);
+
+        vm.SelectedTab = patchTab;
+        Dispatcher.UIThread.RunJobs();
+
+        var patchType = patchTab!.Parameters.OfType<EnumParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "PatchType");
+        var parallelism = patchTab.Parameters.OfType<NumericParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "MaxDegreeOfParallelism");
+        var language = patchTab.Parameters.OfType<StringParameterViewModel>()
+            .FirstOrDefault(p => p.Descriptor.Name == "MarketLanguage");
+
+        var report = ControlTreeDumper.DumpInteractive(window);
+        TestContext.Progress.WriteLine("=== Patch tab controls (preset applied) ===");
+        TestContext.Progress.WriteLine(report);
+
+        var frame = window.CaptureRenderedFrame();
+        frame?.Save(Path.Combine(ScreenshotDir, "Preset_PatchTab_ParameterValues.png"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(patchType?.SelectedValue, Is.EqualTo("BMW"),
+                "PatchType should reflect preset value from gui-settings.json");
+            Assert.That(parallelism?.NumericValue, Is.EqualTo(4m),
+                "MaxDegreeOfParallelism should reflect preset value from gui-settings.json");
+            Assert.That(language?.TextValue, Is.EqualTo("en-US"),
+                "MarketLanguage should reflect preset value from gui-settings.json");
+        }
+
+        window.Close();
+    }
+
+    [AvaloniaTest]
+    public void Preset_ModifyThenReset_UI_RestoresPresetAndRendersCorrectly()
+    {
+        var vm = new MainWindowViewModel();
+        var window = new MainWindow { DataContext = vm, Width = 1100, Height = 700 };
+        window.Show();
+
+        var patchTab = vm.CommandTabs.FirstOrDefault(t => t.Name == "patch");
+        Assert.That(patchTab, Is.Not.Null);
+
+        vm.SelectedTab = patchTab;
+        Dispatcher.UIThread.RunJobs();
+
+        // Modify parameters away from preset
+        var patchType = patchTab!.Parameters.OfType<EnumParameterViewModel>()
+            .First(p => p.Descriptor.Name == "PatchType");
+        var language = patchTab.Parameters.OfType<StringParameterViewModel>()
+            .First(p => p.Descriptor.Name == "MarketLanguage");
+
+        patchType.SelectedValue = "Toyota";
+        language.TextValue = "ja-JP";
+        Dispatcher.UIThread.RunJobs();
+
+        var frameModified = window.CaptureRenderedFrame();
+        frameModified?.Save(Path.Combine(ScreenshotDir, "Preset_PatchTab_AfterModify.png"));
+
+        // Execute ResetToPreset via command
+        patchTab.ResetToPresetCommand.Execute(null);
+        Dispatcher.UIThread.RunJobs();
+
+        var frameRestored = window.CaptureRenderedFrame();
+        frameRestored?.Save(Path.Combine(ScreenshotDir, "Preset_PatchTab_AfterReset.png"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(patchType.SelectedValue, Is.EqualTo("BMW"),
+                "PatchType must be restored after reset");
+            Assert.That(language.TextValue, Is.EqualTo("en-US"),
+                "MarketLanguage must be restored after reset");
+        }
+
+        window.Close();
+    }
 }

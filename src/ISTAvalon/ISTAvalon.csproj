@@ -51,7 +51,7 @@ Released under the GNU GPLv3+.</Copyright>
     <None Include="..\ISTA-Patcher\Assets\appsettings.json" Link="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Assets\gui-settings.json">
+    <None Include="Assets\gui-settings.json" Link="gui-settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
