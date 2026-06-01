@@ -2,6 +2,16 @@
   "version": 1,
   "dependencies": {
     "net10.0": {
+      "Avalonia.Headless.NUnit": {
+        "type": "Direct",
+        "requested": "[12.0.4, )",
+        "resolved": "12.0.4",
+        "contentHash": "7rLF1gPZYYa3WqQK0ESp4YTGjSZcGp7JWAVmFY+JnDRDsQA7uz4yUeNEWFyAadaYvEhzzgMqUnQ3P76AL7tPpQ==",
+        "dependencies": {
+          "Avalonia.Headless": "12.0.4",
+          "NUnit": "4.5.1"
+        }
+      },
       "coverlet.collector": {
         "type": "Direct",
         "requested": "[10.0.1, )",
@@ -49,11 +59,11 @@
       },
       "Avalonia": {
         "type": "Transitive",
-        "resolved": "12.0.3",
-        "contentHash": "OVAzdZB5T/QIOEpw/WmQ0ZJM13BMmLO7RqR5z+lZtBMuStK63W68SV/Q+PNn/GdFEC3Ab8eQhH2FMb8FhNLK+w==",
+        "resolved": "12.0.4",
+        "contentHash": "0ehIUuOVaR3OmsL8YK8v9yCCnOpzRtQSDgP5Nh2fMc+Lji8WoVGD+J6nvwkGjCH5hbm1urgvkVYWAYWkby0EeQ==",
         "dependencies": {
           "Avalonia.BuildServices": "11.3.2",
-          "Avalonia.Remote.Protocol": "12.0.3",
+          "Avalonia.Remote.Protocol": "12.0.4",
           "MicroCom.Runtime": "0.11.4"
         }
       },
@@ -82,10 +92,10 @@
       },
       "Avalonia.Fonts.Inter": {
         "type": "Transitive",
-        "resolved": "12.0.3",
-        "contentHash": "UWB0YZ15H0RKkkNgywtsO0aee3fcd6C0KQlG72QuDjoc7UIiwAgIrwu/LXkxCmXJcoh/xK/EWeclkwXEr7E50Q==",
+        "resolved": "12.0.4",
+        "contentHash": "wXyoxswY4hD6Ly9iB9sojD4rZ104trm2Z1HWLgjHo/eZcBpwT6/T0CDOVp2PeN2wSd72bKlE0n3pFj9t/z7Ipw==",
         "dependencies": {
-          "Avalonia": "12.0.3"
+          "Avalonia": "12.0.4"
         }
       },
       "Avalonia.FreeDesktop": {
@@ -107,13 +117,23 @@
       },
       "Avalonia.HarfBuzz": {
         "type": "Transitive",
-        "resolved": "12.0.3",
-        "contentHash": "6R8pHRC9iDrAgT7AD/A3mE6hAPYXf66Ql5kWV046msSWF9ntYwuhNmJwlWeFwUVhb7nXThyTOIfUd3WV0GFXXA==",
+        "resolved": "12.0.4",
+        "contentHash": "FT5XHaxnCA+kj+Q6dXAPC9/Gy1eBz3buT7T6KJFu+P8+2WZoSFBN5Pk4mO/VA8OTUwtZB/TOX8lExSrmxUBdqw==",
         "dependencies": {
-          "Avalonia": "12.0.3",
+          "Avalonia": "12.0.4",
           "HarfBuzzSharp": "8.3.1.3",
           "HarfBuzzSharp.NativeAssets.Linux": "8.3.1.3",
           "HarfBuzzSharp.NativeAssets.WebAssembly": "8.3.1.3"
+        }
+      },
+      "Avalonia.Headless": {
+        "type": "Transitive",
+        "resolved": "12.0.4",
+        "contentHash": "KFr6cX3QADbx9KeisLdK1MAWywibnzSOxi0mBOT/oKU+niVJ2lJzmOqNnhpmzrkiczNwULbnT0Jg8RRA4uGSDg==",
+        "dependencies": {
+          "Avalonia": "12.0.4",
+          "Avalonia.Fonts.Inter": "12.0.4",
+          "Avalonia.HarfBuzz": "12.0.4"
         }
       },
       "Avalonia.Native": {
@@ -126,8 +146,8 @@
       },
       "Avalonia.Remote.Protocol": {
         "type": "Transitive",
-        "resolved": "12.0.3",
-        "contentHash": "NHvbiGC461oB3DXt8qgLNN+QfcYARcSxY7diyic9R7u6jQA4bc+ZbjEQKX8y8WyF1vOssedRmuOeTvRXlXbF9Q=="
+        "resolved": "12.0.4",
+        "contentHash": "Cvnzp2KTO7BScBPnn4Q91PmVwLvv19of+ZxrN3KFHYQe8in0qNaefZgOHGEiXZ841WpdO3VUFw7qvxv/1RTTGg=="
       },
       "Avalonia.Skia": {
         "type": "Transitive",
@@ -756,22 +776,6 @@
           "Optris.Icons.Avalonia": "12.0.6"
         }
       },
-      "Projektanker.Icons.Avalonia": {
-        "type": "Transitive",
-        "resolved": "9.6.2",
-        "contentHash": "AFPMAp41KvbZCpvo5uS83KVFVVDe6nfWSSmefeP3MBDT1eZosKObcXhNI1BAyt4CDPAaB7dUWaOPAYanzk5ybQ==",
-        "dependencies": {
-          "Avalonia": "11.2.8"
-        }
-      },
-      "Projektanker.Icons.Avalonia.FontAwesome": {
-        "type": "Transitive",
-        "resolved": "9.6.2",
-        "contentHash": "mFDatxzoIUvBIHtPo45kX2sufhp+qf6L3I5WT/shUXrfbKbvIff4dtfjqFWCK2Z3RH31l0I9L7UHY5VLYsqX2g==",
-        "dependencies": {
-          "Projektanker.Icons.Avalonia": "9.6.2"
-        }
-      },
       "Sentry": {
         "type": "Transitive",
         "resolved": "6.5.0",
@@ -906,7 +910,7 @@
           "GenHTTP.Modules.Controllers": "[10.5.3, )",
           "GenHTTP.Modules.OpenApi": "[10.5.3, )",
           "GenHTTP.Modules.Webservices": "[10.5.3, )",
-          "ISTAlter": "[2.5.0, )",
+          "ISTAlter": "[2.5.1, )",
           "JetBrains.Annotations": "[2025.2.4, )",
           "LibGit2Sharp": "[0.31.0, )",
           "Microsoft.Extensions.Configuration.Abstractions": "[10.0.8, )",
@@ -946,11 +950,9 @@
           "Avalonia.Fonts.Inter": "[12.0.3, )",
           "Avalonia.Themes.Fluent": "[12.0.3, )",
           "CommunityToolkit.Mvvm": "[8.4.2, )",
-          "ISTA-Patcher": "[2.5.0, )",
+          "ISTA-Patcher": "[2.5.1, )",
           "Optris.Icons.Avalonia": "[12.0.6, )",
           "Optris.Icons.Avalonia.FontAwesome": "[12.0.6, )",
-          "Projektanker.Icons.Avalonia": "[9.6.2, )",
-          "Projektanker.Icons.Avalonia.FontAwesome": "[9.6.2, )",
           "Sentry": "[6.5.0, )",
           "Sentry.Profiling": "[6.5.0, )",
           "Sentry.Serilog": "[6.5.0, )"

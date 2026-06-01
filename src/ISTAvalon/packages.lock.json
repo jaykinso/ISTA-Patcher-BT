@@ -785,7 +785,7 @@
           "GenHTTP.Modules.Controllers": "[10.5.3, )",
           "GenHTTP.Modules.OpenApi": "[10.5.3, )",
           "GenHTTP.Modules.Webservices": "[10.5.3, )",
-          "ISTAlter": "[2.5.0, )",
+          "ISTAlter": "[2.5.1, )",
           "JetBrains.Annotations": "[2025.2.4, )",
           "LibGit2Sharp": "[0.31.0, )",
           "Microsoft.Extensions.Configuration.Abstractions": "[10.0.8, )",
