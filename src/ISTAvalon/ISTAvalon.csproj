@@ -35,6 +35,7 @@ Released under the GNU GPLv3+.</Copyright>
     <PackageReference Include="Sentry" Version="6.6.0" />
     <PackageReference Include="Sentry.Profiling" Version="6.6.0" />
     <PackageReference Include="Sentry.Serilog" Version="6.6.0" />
+    <PackageReference Include="YamlDotNet" Version="18.0.0" />
   </ItemGroup>
 
   <ItemGroup>

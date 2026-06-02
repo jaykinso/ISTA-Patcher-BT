@@ -47,13 +47,13 @@ public class UIAutomationTests
         window.Show();
         Dispatcher.UIThread.RunJobs();
 
-        var report = ControlTreeDumper.DumpInteractive(window);
-        TestContext.Progress.WriteLine("=== Interactive Controls (initial) ===");
+        var report = ControlTreeDumper.DumpYaml(vm);
+        TestContext.Progress.WriteLine("=== GUI State YAML (initial) ===");
         TestContext.Progress.WriteLine(report);
 
-        // Basic sanity: the Execute button should be visible
-        Assert.That(report, Does.Contain("[Button]").And.Contain("Execute"),
-            "Execute button should be discoverable in the control tree");
+        // Basic sanity: at least one parameter binding should be present
+        Assert.That(report, Does.Contain("binding:"),
+            "YAML report should expose at least one ViewModel parameter binding");
 
         window.Close();
     }
@@ -66,11 +66,11 @@ public class UIAutomationTests
         window.Show();
         Dispatcher.UIThread.RunJobs();
 
-        var dump = ControlTreeDumper.Dump(window);
-        var dumpPath = Path.Combine(ScreenshotDir, "ControlTree_Initial.txt");
+        var dump = ControlTreeDumper.DumpYaml(vm);
+        var dumpPath = Path.Combine(ScreenshotDir, "ControlTree_Initial.yaml");
         File.WriteAllText(dumpPath, dump);
 
-        TestContext.Progress.WriteLine($"Full control tree written to: {dumpPath}");
+        TestContext.Progress.WriteLine($"GUI state YAML written to: {dumpPath}");
         Assert.That(File.Exists(dumpPath), Is.True);
 
         window.Close();
@@ -108,8 +108,8 @@ public class UIAutomationTests
         var frame = window.CaptureRenderedFrame();
         frame?.Save(Path.Combine(ScreenshotDir, $"After_TabSwitch_{secondTab.Name}.png"));
 
-        var report = ControlTreeDumper.DumpInteractive(window);
-        TestContext.Progress.WriteLine($"=== Controls after switching to tab '{secondTab.Name}' ===");
+        var report = ControlTreeDumper.DumpYaml(vm);
+        TestContext.Progress.WriteLine($"=== GUI State YAML after switching to tab '{secondTab.Name}' ===");
         TestContext.Progress.WriteLine(report);
 
         Assert.That(vm.SelectedTab?.Name, Is.EqualTo(secondTab.Name));
@@ -568,8 +568,8 @@ public class UIAutomationTests
         var language = patchTab.Parameters.OfType<StringParameterViewModel>()
             .FirstOrDefault(p => p.Descriptor.Name == "MarketLanguage");
 
-        var report = ControlTreeDumper.DumpInteractive(window);
-        TestContext.Progress.WriteLine("=== Patch tab controls (preset applied) ===");
+        var report = ControlTreeDumper.DumpYaml(vm);
+        TestContext.Progress.WriteLine("=== Patch tab state YAML (preset applied) ===");
         TestContext.Progress.WriteLine(report);
 
         var frame = window.CaptureRenderedFrame();
