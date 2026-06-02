@@ -83,8 +83,11 @@ public class HashFileInfoTests
 
         // Assert
         Assert.That(instance, Is.Not.Null, "Valid data should create instance");
-        Assert.That(instance!.FilePath, Is.EqualTo("path/to/file.dll"), "FilePath should be set correctly");
-        Assert.That(instance.FileName, Is.EqualTo("file.dll"), "FileName should be extracted correctly");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(instance!.FilePath, Is.EqualTo("path/to/file.dll"), "FilePath should be set correctly");
+            Assert.That(instance.FileName, Is.EqualTo("file.dll"), "FileName should be extracted correctly");
+        }
     }
 
     /// <summary>

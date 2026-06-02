@@ -93,7 +93,7 @@ public static class CommandDiscoveryService
         return roots;
     }
 
-    private static IReadOnlyList<ParameterDescriptor> BuildParameters(Type commandType, Type? parentCommandType)
+    private static List<ParameterDescriptor> BuildParameters(Type commandType, Type? parentCommandType)
     {
         var parameters = new List<ParameterDescriptor>();
 

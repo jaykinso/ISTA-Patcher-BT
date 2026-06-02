@@ -55,8 +55,11 @@ public class GuiSettingsServiceTests
         try
         {
             var settings = GuiSettingsService.Load();
-            Assert.That(settings.Theme, Is.EqualTo("Default"));
-            Assert.That(settings.Presets, Is.Not.Null);
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(settings.Theme, Is.EqualTo("Default"));
+                Assert.That(settings.Presets, Is.Not.Null);
+            }
         }
         finally
         {
@@ -81,7 +84,7 @@ public class GuiSettingsServiceTests
 
         try
         {
-            var json = """
+            const string json = """
                 {
                   "Theme": "Dark",
                   "Presets": {
@@ -271,7 +274,7 @@ public class GuiSettingsServiceTests
 
         try
         {
-            var json = """
+            const string json = """
                 {
                   "Theme": "Default",
                   "Presets": {

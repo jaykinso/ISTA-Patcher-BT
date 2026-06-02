@@ -17,7 +17,7 @@ public class PatchInfo(Func<ModuleDefMD, int> delegator, MethodInfo method, int 
 
     public int AppliedCount => this._appliedCount;
 
-    /// <summary>Number of times the delegator was actually invoked (version and library checks passed).</summary>
+    /// <summary>Gets number of times the delegator was actually invoked (version and library checks passed).</summary>
     public int AttemptedCount => this._attemptedCount;
 
     public void AddAppliedCount(int count) => Interlocked.Add(ref this._appliedCount, count);

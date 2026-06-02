@@ -60,11 +60,14 @@ public class PatchPathTraversalTests
         // Assert: The normalized path escapes the base directory
         Assert.That(normalizedPath, Is.EqualTo(Path.GetFullPath(sensitiveFile)),
             "Path traversal should resolve to the sensitive file");
-        Assert.That(normalizedPath.StartsWith(Path.GetFullPath(_testBasePath), StringComparison.OrdinalIgnoreCase),
-            Is.False,
-            "Traversal path should escape the base directory");
-        Assert.That(File.Exists(normalizedPath), Is.True,
-            "The traversal path should resolve to an existing file outside the base directory");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(normalizedPath.StartsWith(Path.GetFullPath(_testBasePath), StringComparison.OrdinalIgnoreCase),
+                    Is.False,
+                    "Traversal path should escape the base directory");
+            Assert.That(File.Exists(normalizedPath), Is.True,
+                "The traversal path should resolve to an existing file outside the base directory");
+        }
     }
 
     /// <summary>
@@ -127,7 +130,7 @@ public class PatchPathTraversalTests
     {
         // Arrange
         var basePath = Path.GetFullPath(_testBasePath);
-        var legitimatePath = "subdir\\file.dll";
+        const string legitimatePath = @"subdir\file.dll";
         var fullPath = Path.GetFullPath(Path.Join(basePath, legitimatePath));
 
         // Act

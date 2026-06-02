@@ -38,7 +38,7 @@ public class CommandExecutionServiceTests
             Name = "child",
             CommandType = typeof(ChildCommand),
             ParentCommandType = typeof(ParentCommand),
-            Parameters = parameters.Select(p => p.Descriptor).ToList(),
+            Parameters = parameters.ConvertAll(p => p.Descriptor),
         };
 
         var result = await CommandExecutionService.ExecuteAsync(descriptor, parameters);

@@ -177,7 +177,7 @@ public class PatchUtilsFingerprintTests
     /// <summary>
     /// Helper method to create a method with a switch instruction.
     /// </summary>
-    private MethodDef CreateMethodWithSwitch(int[] targetIndices)
+    private MethodDefUser CreateMethodWithSwitch(int[] targetIndices)
     {
         var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
         _testModule.Types.Add(typeDef);
@@ -213,7 +213,7 @@ public class PatchUtilsFingerprintTests
     /// <summary>
     /// Helper method to create a method with a single branch instruction.
     /// </summary>
-    private MethodDef CreateMethodWithBranch(int targetIndex)
+    private MethodDefUser CreateMethodWithBranch(int targetIndex)
     {
         var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
         _testModule.Types.Add(typeDef);
@@ -248,7 +248,7 @@ public class PatchUtilsFingerprintTests
     /// <summary>
     /// Helper method to create a method with a local operand.
     /// </summary>
-    private MethodDef CreateMethodWithLocalOperand(TypeSig localType)
+    private MethodDefUser CreateMethodWithLocalOperand(TypeSig localType)
     {
         var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
         _testModule.Types.Add(typeDef);
@@ -273,7 +273,7 @@ public class PatchUtilsFingerprintTests
     /// <summary>
     /// Helper method to create a method with a parameter operand.
     /// </summary>
-    private MethodDef CreateMethodWithParameterOperand(TypeSig firstParameterType, TypeSig secondParameterType)
+    private MethodDefUser CreateMethodWithParameterOperand(TypeSig firstParameterType, TypeSig secondParameterType)
     {
         var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
         _testModule.Types.Add(typeDef);
@@ -296,7 +296,7 @@ public class PatchUtilsFingerprintTests
     /// <summary>
     /// Helper method to create a method with an sbyte operand.
     /// </summary>
-    private MethodDef CreateMethodWithSByteOperand(sbyte value)
+    private MethodDefUser CreateMethodWithSByteOperand(sbyte value)
     {
         var typeDef = new TypeDefUser("TestNamespace", "TestType", _testModule!.CorLibTypes.Object.TypeDefOrRef);
         _testModule.Types.Add(typeDef);
@@ -318,7 +318,7 @@ public class PatchUtilsFingerprintTests
     /// <summary>
     /// Use reflection to call the private ComputeBodyFingerprint method.
     /// </summary>
-    private int ComputeFingerprintViaReflection(MethodDef method)
+    private static int ComputeFingerprintViaReflection(MethodDef method)
     {
         var patchUtilsType = typeof(PatchUtils);
         var computeMethod = patchUtilsType.GetMethod("ComputeBodyFingerprint",

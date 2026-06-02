@@ -57,8 +57,11 @@ public class MainWindowHeadlessTests
         var window = new MainWindow { DataContext = vm };
         window.Show();
 
-        Assert.That(vm.CommandTabs, Is.Not.Empty, "CommandTabs should be populated by discovery");
-        Assert.That(vm.SelectedTab, Is.Not.Null, "A tab should be selected by default");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(vm.CommandTabs, Is.Not.Empty, "CommandTabs should be populated by discovery");
+            Assert.That(vm.SelectedTab, Is.Not.Null, "A tab should be selected by default");
+        }
         window.Close();
     }
 
@@ -215,20 +218,29 @@ public class MainWindowHeadlessTests
         // Default → Light
         vm.ToggleThemeCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
-        Assert.That(vm.CurrentTheme, Is.EqualTo(AppTheme.Light), "1st toggle: should be Light");
-        Assert.That(Application.Current!.RequestedThemeVariant, Is.EqualTo(ThemeVariant.Light));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(vm.CurrentTheme, Is.EqualTo(AppTheme.Light), "1st toggle: should be Light");
+            Assert.That(Application.Current!.RequestedThemeVariant, Is.EqualTo(ThemeVariant.Light));
+        }
 
         // Light → Dark
         vm.ToggleThemeCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
-        Assert.That(vm.CurrentTheme, Is.EqualTo(AppTheme.Dark), "2nd toggle: should be Dark");
-        Assert.That(Application.Current!.RequestedThemeVariant, Is.EqualTo(ThemeVariant.Dark));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(vm.CurrentTheme, Is.EqualTo(AppTheme.Dark), "2nd toggle: should be Dark");
+            Assert.That(Application.Current!.RequestedThemeVariant, Is.EqualTo(ThemeVariant.Dark));
+        }
 
         // Dark → Default
         vm.ToggleThemeCommand.Execute(null);
         Dispatcher.UIThread.RunJobs();
-        Assert.That(vm.CurrentTheme, Is.EqualTo(AppTheme.Default), "3rd toggle: should wrap back to Default");
-        Assert.That(Application.Current!.RequestedThemeVariant, Is.EqualTo(ThemeVariant.Default));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(vm.CurrentTheme, Is.EqualTo(AppTheme.Default), "3rd toggle: should wrap back to Default");
+            Assert.That(Application.Current!.RequestedThemeVariant, Is.EqualTo(ThemeVariant.Default));
+        }
 
         window.Close();
     }

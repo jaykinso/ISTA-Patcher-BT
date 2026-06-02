@@ -161,13 +161,7 @@ public static partial class Patch
                     continue;
                 }
 
-                if (!PatchUtils.IsVersionInRange(module, patch.Method))
-                {
-                    resultBuilder.Append('-');
-                    continue;
-                }
-
-                if (!PatchUtils.IsPatchApplicable(module, patch.Method))
+                if (!PatchUtils.IsVersionInRange(module, patch.Method) || !PatchUtils.IsPatchApplicable(module, patch.Method))
                 {
                     resultBuilder.Append('-');
                     continue;
@@ -245,6 +239,8 @@ public static partial class Patch
                 File.Delete(patchedFileFullPath);
             }
         }
+
+        return;
 
         static bool ShouldSkipPatch(string[] skipLibraries, string[] libraryList)
         {

@@ -27,10 +27,13 @@ public class StringGeneratorTests
         var gen = new StringGenerator([[0, 1, 0, 0]]);
         var result = gen.Generate().Take(6).ToArray();
 
-        // x=0 → dx=0 → 0; x=1 → dx=0 (clamped to segment 0) → 1; etc.
-        Assert.That(result[0], Is.Zero);
-        Assert.That(result[1], Is.EqualTo(1));
-        Assert.That(result[2], Is.EqualTo(2));
+        using (Assert.EnterMultipleScope())
+        {
+            // x=0 → dx=0 → 0; x=1 → dx=0 (clamped to segment 0) → 1; etc.
+            Assert.That(result[0], Is.Zero);
+            Assert.That(result[1], Is.EqualTo(1));
+            Assert.That(result[2], Is.EqualTo(2));
+        }
     }
 
     /// <summary>
@@ -47,9 +50,12 @@ public class StringGeneratorTests
         var gen = new StringGenerator([[10, 0, 0, 0], [20, 0, 0, 0]]);
         var result = gen.Generate().Take(3).ToArray();
 
-        Assert.That(result[0], Is.EqualTo(10));
-        Assert.That(result[1], Is.EqualTo(20));
-        Assert.That(result[2], Is.EqualTo(20));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result[0], Is.EqualTo(10));
+            Assert.That(result[1], Is.EqualTo(20));
+            Assert.That(result[2], Is.EqualTo(20));
+        }
     }
 
     /// <summary>
@@ -63,13 +69,16 @@ public class StringGeneratorTests
         var gen = new StringGenerator([[1, 2, 3, 4]]);
         var result = gen.Generate().Take(4).ToArray();
 
-        // x=0: dx=0 → 1
-        Assert.That(result[0], Is.EqualTo(1));
-        // x=1: dx=1 → 1+2+3+4=10
-        Assert.That(result[1], Is.EqualTo(10));
-        // x=2: dx=2 → 1+4+12+32=49
-        Assert.That(result[2], Is.EqualTo(49));
-        // x=3: dx=3 → 1+6+27+108=142
-        Assert.That(result[3], Is.EqualTo(142));
+        using (Assert.EnterMultipleScope())
+        {
+            // x=0: dx=0 → 1
+            Assert.That(result[0], Is.EqualTo(1));
+            // x=1: dx=1 → 1+2+3+4=10
+            Assert.That(result[1], Is.EqualTo(10));
+            // x=2: dx=2 → 1+4+12+32=49
+            Assert.That(result[2], Is.EqualTo(49));
+            // x=3: dx=3 → 1+6+27+108=142
+            Assert.That(result[3], Is.EqualTo(142));
+        }
     }
 }

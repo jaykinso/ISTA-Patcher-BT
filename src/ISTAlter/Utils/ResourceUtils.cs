@@ -105,20 +105,16 @@ public static class ResourceUtils
         using var original = SKBitmap.Decode(input);
         using var typeface = SKTypeface.FromFamilyName("Arial", SKFontStyle.Normal);
 
-        using var shadowPaint = new SKPaint
-        {
-            TextSize = 32,
-            IsAntialias = true,
-            Typeface = typeface,
-            Color = new SKColor(0, 0, 0, (byte)(255 * 0.2f)),
-        };
-        using var textPaint = new SKPaint
-        {
-            TextSize = 32,
-            IsAntialias = true,
-            Typeface = typeface,
-            Color = new SKColor(255, 255, 255, (byte)(255 * 0.6f)),
-        };
+        using var shadowPaint = new SKPaint();
+        shadowPaint.TextSize = 32;
+        shadowPaint.IsAntialias = true;
+        shadowPaint.Typeface = typeface;
+        shadowPaint.Color = new SKColor(0, 0, 0, (byte)(255 * 0.2f));
+        using var textPaint = new SKPaint();
+        textPaint.TextSize = 32;
+        textPaint.IsAntialias = true;
+        textPaint.Typeface = typeface;
+        textPaint.Color = new SKColor(255, 255, 255, (byte)(255 * 0.6f));
 
         textPaint.GetFontMetrics(out var metrics);
         var textWidth = textPaint.MeasureText(watermarkText);

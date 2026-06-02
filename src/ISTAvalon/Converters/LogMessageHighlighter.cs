@@ -25,7 +25,7 @@ public static partial class LogMessageHighlighter
 
     public static IReadOnlyList<Run> Highlight(string message, LogEventLevel level)
     {
-        if (message.IndexOf('\u001b') >= 0)
+        if (message.Contains('\u001b'))
         {
             return HighlightAnsi(message, level);
         }
@@ -74,7 +74,7 @@ public static partial class LogMessageHighlighter
         return result;
     }
 
-    private static IReadOnlyList<Run> HighlightAnsi(string message, LogEventLevel level)
+    private static List<Run> HighlightAnsi(string message, LogEventLevel level)
     {
         var levelBrush = GetLevelBrush(level);
         var result = new List<Run>();

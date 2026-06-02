@@ -160,13 +160,13 @@ public static partial class PatchUtils
                     hash.Add(targets.Count);
                     foreach (var target in targets)
                     {
-                        hash.Add(indexMap.TryGetValue(target, out var targetIdx) ? targetIdx : -1);
+                        hash.Add(indexMap.GetValueOrDefault(target, -1));
                     }
 
                     break;
 
                 case Instruction target:
-                    hash.Add(indexMap.TryGetValue(target, out var targetIndex) ? targetIndex : -1);
+                    hash.Add(indexMap.GetValueOrDefault(target, -1));
                     break;
 
                 default:
