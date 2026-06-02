@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Headless;
 
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Layout;
 using Avalonia.VisualTree;
 
 /// <summary>

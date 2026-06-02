@@ -98,7 +98,7 @@ public static class GuiSettingsService
         Theme = "Default",
         Presets = new Dictionary<string, Dictionary<string, string>>
         {
-            ["patch"] = new Dictionary<string, string>
+            ["patch"] = new()
             {
                 ["PatchType"] = "BMW",
                 ["MaxDegreeOfParallelism"] = "4",

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Services;
 
-using ISTAlter;
-using ISTAvalon.Models;
-using ISTAvalon.Services;
-using ISTAvalon.ViewModels;
+using global::ISTAlter;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.Services;
+using global::ISTAvalon.ViewModels;
 
 public class CommandExecutionServiceTests
 {
@@ -48,7 +48,7 @@ public class CommandExecutionServiceTests
             Assert.That(result, Is.EqualTo(7));
             Assert.That(ChildCommand.LastParent?.Verbose, Is.True);
             Assert.That(ChildCommand.LastName, Is.EqualTo("tester"));
-            Assert.That(ChildCommand.LastTags, Is.EqualTo(new[] { "alpha", "beta" }));
+            Assert.That(ChildCommand.LastTags, Is.EqualTo(["alpha", "beta"]));
             Assert.That(ChildCommand.LastPatchType, Is.EqualTo(ISTAOptions.PatchType.Toyota));
         }
     }
@@ -112,7 +112,7 @@ public class CommandExecutionServiceTests
 
         public static string[] LastTags { get; set; } = [];
 
-        public static ISTAOptions.PatchType LastPatchType { get; set; }
+        public static global::ISTAlter.ISTAOptions.PatchType LastPatchType { get; set; }
 
         public ParentCommand? ParentCommand { get; set; }
 
@@ -120,7 +120,7 @@ public class CommandExecutionServiceTests
 
         public string[] Tags { get; set; } = [];
 
-        public ISTAOptions.PatchType PatchType { get; set; }
+        public global::ISTAlter.ISTAOptions.PatchType PatchType { get; set; }
 
         public Task<int> RunAsync()
         {

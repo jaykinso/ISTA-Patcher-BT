@@ -37,7 +37,7 @@ public class GuiSettings
 
     public IReadOnlyDictionary<string, string>? GetPresetFor(string commandName)
     {
-        return Presets.TryGetValue(commandName, out var preset) ? preset : null;
+        return Presets.GetValueOrDefault(commandName);
     }
 }
 

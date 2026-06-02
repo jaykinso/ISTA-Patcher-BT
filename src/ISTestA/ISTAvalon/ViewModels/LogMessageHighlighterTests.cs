@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.ViewModels;
 
 using Avalonia.Media;
-using ISTAvalon.Converters;
-using ISTAvalon.Models;
+using global::ISTAvalon.Converters;
+using global::ISTAvalon.Models;
 using Serilog.Events;
 
 public class LogMessageHighlighterTests

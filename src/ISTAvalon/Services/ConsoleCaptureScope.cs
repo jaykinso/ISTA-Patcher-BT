@@ -45,7 +45,7 @@ public sealed class ConsoleCaptureScope : IDisposable
 
     private sealed class LineInterceptingTextWriter(Action<string> onLine) : TextWriter
     {
-        private readonly object _gate = new();
+        private readonly Lock _gate = new();
         private readonly StringBuilder _buffer = new();
 
         public override Encoding Encoding => Encoding.UTF8;

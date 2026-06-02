@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-using ISTAlter.Core;
-using ISTAlter.Core.Patcher.Provider;
-
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Core;
 
 /// <summary>
 /// Tests for path traversal vulnerability in Patch.PatchSingleFile.

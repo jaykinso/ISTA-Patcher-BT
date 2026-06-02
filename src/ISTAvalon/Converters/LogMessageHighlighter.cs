@@ -134,8 +134,7 @@ public static partial class LogMessageHighlighter
 
             brush = code switch
             {
-                0 => levelBrush,
-                39 => levelBrush,
+                0 or 39 => levelBrush,
                 30 => LogPanelPalette.AnsiBlackBrush,
                 31 => LogPanelPalette.AnsiRedBrush,
                 32 => LogPanelPalette.AnsiGreenBrush,
@@ -161,7 +160,7 @@ public static partial class LogMessageHighlighter
 
     private static bool TryParseExtendedAnsiForeground(string[] parts, ref int index, out IBrush brush)
     {
-        brush = default!;
+        brush = null!;
 
         if (index + 1 >= parts.Length || !int.TryParse(parts[index + 1], out var mode))
         {
@@ -231,8 +230,9 @@ public static partial class LogMessageHighlighter
             var g = (colorIndex % 36) / 6;
             var b = colorIndex % 6;
 
-            static byte Channel(int v) => v == 0 ? (byte)0 : (byte)(55 + (40 * v));
             return Color.FromRgb(Channel(r), Channel(g), Channel(b));
+
+            static byte Channel(int v) => v == 0 ? (byte)0 : (byte)(55 + (40 * v));
         }
 
         var gray = (byte)(8 + (code - 232) * 10);

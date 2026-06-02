@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Utils;
 
-using ISTAlter.Utils;
+using global::ISTAlter.Utils;
 
 public class StringGeneratorTests
 {
@@ -28,7 +28,7 @@ public class StringGeneratorTests
         var result = gen.Generate().Take(6).ToArray();
 
         // x=0 → dx=0 → 0; x=1 → dx=0 (clamped to segment 0) → 1; etc.
-        Assert.That(result[0], Is.EqualTo(0));
+        Assert.That(result[0], Is.Zero);
         Assert.That(result[1], Is.EqualTo(1));
         Assert.That(result[2], Is.EqualTo(2));
     }

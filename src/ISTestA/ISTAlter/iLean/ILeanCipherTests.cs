@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.iLean;
 
-using ISTAlter.Core.iLean;
+using global::ISTAlter.Core.iLean;
 
 public class ILeanCipherTests
 {

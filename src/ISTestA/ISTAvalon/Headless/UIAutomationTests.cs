@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Headless;
 
 using Avalonia.Controls;
 using Avalonia.Headless;
@@ -9,8 +9,8 @@ using Avalonia.Headless.NUnit;
 using Avalonia.Input;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using ISTAvalon.ViewModels;
-using ISTAvalon.Views;
+using global::ISTAvalon.ViewModels;
+using global::ISTAvalon.Views;
 
 /// <summary>
 /// UI-automation style tests for <see cref="MainWindow"/>.
@@ -312,7 +312,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_PatchTab_HasPreset_IsTrue_WhenPresetDictProvided()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
 
         var preset = new Dictionary<string, string> { ["PatchType"] = "BMW" };
@@ -324,7 +324,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_PatchTab_HasPreset_IsFalse_WhenNoPresetProvided()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
 
         var tabVm = new CommandTabViewModel(patchDescriptor, preset: null);
@@ -337,7 +337,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_PatchTab_AppliesEnumValue_PatchType_BMW()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
         var preset = new Dictionary<string, string> { ["PatchType"] = "BMW" };
 
@@ -354,7 +354,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_PatchTab_AppliesNumericValue_MaxDegreeOfParallelism_4()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
         var preset = new Dictionary<string, string> { ["MaxDegreeOfParallelism"] = "4" };
 
@@ -371,7 +371,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_PatchTab_AppliesStringValue_MarketLanguage_EnUS()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
         var preset = new Dictionary<string, string> { ["MarketLanguage"] = "en-US" };
 
@@ -388,7 +388,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_PatchTab_AllThreePresetValues_AppliedTogether()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
         var preset = new Dictionary<string, string>
         {
@@ -419,7 +419,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_ResetCommand_CanExecute_WhenHasPreset()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
         var preset = new Dictionary<string, string> { ["PatchType"] = "BMW" };
 
@@ -431,7 +431,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_ResetCommand_CannotExecute_WhenNoPreset()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
 
         var tabVm = new CommandTabViewModel(patchDescriptor, preset: null);
@@ -442,7 +442,7 @@ public class UIAutomationTests
     [Test]
     public void Preset_ModifyParameter_ThenResetCommand_RestoresPresetValues()
     {
-        var descriptors = ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
+        var descriptors = global::ISTAvalon.Services.CommandDiscoveryService.DiscoverCommands();
         var patchDescriptor = descriptors.First(d => d.Name == "patch");
         var preset = new Dictionary<string, string>
         {

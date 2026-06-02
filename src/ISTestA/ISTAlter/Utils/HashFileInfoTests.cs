@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-using ISTAlter.Utils;
+using global::ISTAlter.Utils;
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Utils;
 
 /// <summary>
 /// Tests for HashFileInfo array bounds vulnerability.
@@ -27,9 +27,9 @@ public class HashFileInfoTests
             var constructor = typeof(HashFileInfo).GetConstructor(
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
                 null,
-                new[] { typeof(IReadOnlyList<string>) },
+                [typeof(IReadOnlyList<string>)],
                 null);
-            constructor?.Invoke(new object[] { emptyArray });
+            constructor?.Invoke([emptyArray]);
         }, "Empty array should throw exception");
 
         Assert.That(ex!.InnerException, Is.InstanceOf<ArgumentException>(),
@@ -53,9 +53,9 @@ public class HashFileInfoTests
             var constructor = typeof(HashFileInfo).GetConstructor(
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
                 null,
-                new[] { typeof(IReadOnlyList<string>) },
+                [typeof(IReadOnlyList<string>)],
                 null);
-            constructor?.Invoke(new object[] { singleElement });
+            constructor?.Invoke([singleElement]);
         }, "Single-element array should throw exception");
 
         Assert.That(ex!.InnerException, Is.InstanceOf<ArgumentException>(),
@@ -77,9 +77,9 @@ public class HashFileInfoTests
         var constructor = typeof(HashFileInfo).GetConstructor(
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
             null,
-            new[] { typeof(IReadOnlyList<string>) },
+            [typeof(IReadOnlyList<string>)],
             null);
-        var instance = constructor?.Invoke(new object[] { validData }) as HashFileInfo;
+        var instance = constructor?.Invoke([validData]) as HashFileInfo;
 
         // Assert
         Assert.That(instance, Is.Not.Null, "Valid data should create instance");
@@ -100,9 +100,9 @@ public class HashFileInfoTests
         var constructor = typeof(HashFileInfo).GetConstructor(
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
             null,
-            new[] { typeof(IReadOnlyList<string>) },
+            [typeof(IReadOnlyList<string>)],
             null);
-        var instance = constructor?.Invoke(new object[] { dataWithBOM }) as HashFileInfo;
+        var instance = constructor?.Invoke([dataWithBOM]) as HashFileInfo;
 
         // Assert
         Assert.That(instance, Is.Not.Null);
@@ -117,15 +117,15 @@ public class HashFileInfoTests
     public void Constructor_WithBackslashes_ConvertsToForwardSlashes()
     {
         // Arrange
-        var dataWithBackslashes = new[] { "path\\to\\file.dll", "YWJjZGVmZ2hpamtsbW5vcA==" };
+        var dataWithBackslashes = new[] { @"path\to\file.dll", "YWJjZGVmZ2hpamtsbW5vcA==" };
 
         // Act
         var constructor = typeof(HashFileInfo).GetConstructor(
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
             null,
-            new[] { typeof(IReadOnlyList<string>) },
+            [typeof(IReadOnlyList<string>)],
             null);
-        var instance = constructor?.Invoke(new object[] { dataWithBackslashes }) as HashFileInfo;
+        var instance = constructor?.Invoke([dataWithBackslashes]) as HashFileInfo;
 
         // Assert
         Assert.That(instance, Is.Not.Null);
@@ -143,7 +143,7 @@ public class HashFileInfoTests
         var malformedData = "single_value_without_delimiter".Split(";;");
 
         // Act & Assert
-        Assert.That(malformedData.Length, Is.EqualTo(1),
+        Assert.That(malformedData, Has.Length.EqualTo(1),
             "Split should return single element for malformed data");
 
         var ex = Assert.Throws<System.Reflection.TargetInvocationException>(() =>
@@ -151,9 +151,9 @@ public class HashFileInfoTests
             var constructor = typeof(HashFileInfo).GetConstructor(
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance,
                 null,
-                new[] { typeof(IReadOnlyList<string>) },
+                [typeof(IReadOnlyList<string>)],
                 null);
-            constructor?.Invoke(new object[] { malformedData });
+            constructor?.Invoke([malformedData]);
         }, "Malformed split result should throw exception");
 
         Assert.That(ex!.InnerException, Is.InstanceOf<ArgumentException>(),

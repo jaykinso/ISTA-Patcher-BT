@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2025 TautCony
 
-using ISTAlter.Utils;
+using global::ISTAlter.Utils;
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Utils;
 
 public class DataPackageTests
 {

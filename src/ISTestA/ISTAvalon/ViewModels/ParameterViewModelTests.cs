@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.ViewModels;
 
-using ISTAlter;
-using ISTAvalon.Models;
-using ISTAvalon.ViewModels;
+using global::ISTAlter;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.ViewModels;
 
 public class ParameterViewModelTests
 {
@@ -139,11 +139,11 @@ public class ParameterViewModelTests
             ParameterKind.StringArray,
             defaultValue: new[] { "default-a", "default-b" }));
 
-        Assert.That(vm.GetValue(), Is.EqualTo(new[] { "default-a", "default-b" }));
+        Assert.That(vm.GetValue(), Is.EqualTo(["default-a", "default-b"]));
 
         vm.ApplyValue("alpha, beta,,gamma ");
 
-        Assert.That(vm.GetValue(), Is.EqualTo(new[] { "alpha", "beta", "gamma" }));
+        Assert.That(vm.GetValue(), Is.EqualTo(["alpha", "beta", "gamma"]));
     }
 
     private static ParameterDescriptor CreateDescriptor(
@@ -176,9 +176,9 @@ public class ParameterViewModelTests
     {
         public bool Enabled { get; set; }
 
-        public ISTAOptions.ModeType Mode { get; set; }
+        public global::ISTAlter.ISTAOptions.ModeType Mode { get; set; }
 
-        public ISTAOptions.PatchType PatchType { get; set; }
+        public global::ISTAlter.ISTAOptions.PatchType PatchType { get; set; }
 
         public int Count { get; set; }
 

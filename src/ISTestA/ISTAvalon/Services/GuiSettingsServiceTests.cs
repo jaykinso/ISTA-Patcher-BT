@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Services;
 
 using System.Text.Json;
-using ISTAvalon.Models;
-using ISTAvalon.Services;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.Services;
 
 /// <summary>
 /// Tests for GuiSettingsService focusing on uncovered branches:
@@ -286,7 +286,7 @@ public class GuiSettingsServiceTests
 
             using (Assert.EnterMultipleScope())
             {
-                Assert.That(settings.Presets.Keys, Is.EquivalentTo(new[] { "patch", "ilean" }));
+                Assert.That(settings.Presets.Keys, Is.EquivalentTo(["patch", "ilean"]));
                 Assert.That(settings.GetPresetFor("patch")!["PatchType"], Is.EqualTo("Toyota"));
                 Assert.That(settings.GetPresetFor("ilean")!["Verbose"], Is.EqualTo("true"));
             }

@@ -3,9 +3,9 @@
 
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
-using ISTAlter.Core;
+using global::ISTAlter.Core;
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Core;
 
 /// <summary>
 /// Tests for ComputeBodyFingerprint to ensure all IL operand types are handled correctly.
@@ -34,8 +34,8 @@ public class PatchUtilsFingerprintTests
     public void ComputeBodyFingerprint_SwitchInstruction_ShouldBeHashed()
     {
         // Arrange: Create two methods with different switch targets
-        var method1 = CreateMethodWithSwitch(new[] { 0, 1, 2 });
-        var method2 = CreateMethodWithSwitch(new[] { 0, 1, 3 }); // Different target at index 2
+        var method1 = CreateMethodWithSwitch([0, 1, 2]);
+        var method2 = CreateMethodWithSwitch([0, 1, 3]); // Different target at index 2
 
         // Act: Compute fingerprints using reflection to access private method
         var fingerprint1 = ComputeFingerprintViaReflection(method1);
@@ -53,8 +53,8 @@ public class PatchUtilsFingerprintTests
     public void ComputeBodyFingerprint_SwitchInstruction_SameTargets_ShouldMatch()
     {
         // Arrange: Create two methods with identical switch targets
-        var method1 = CreateMethodWithSwitch(new[] { 0, 1, 2 });
-        var method2 = CreateMethodWithSwitch(new[] { 0, 1, 2 });
+        var method1 = CreateMethodWithSwitch([0, 1, 2]);
+        var method2 = CreateMethodWithSwitch([0, 1, 2]);
 
         // Act
         var fingerprint1 = ComputeFingerprintViaReflection(method1);
@@ -72,8 +72,8 @@ public class PatchUtilsFingerprintTests
     public void ComputeBodyFingerprint_SwitchInstruction_DifferentCount_ShouldDiffer()
     {
         // Arrange: Create methods with different number of switch cases
-        var method1 = CreateMethodWithSwitch(new[] { 0, 1 });
-        var method2 = CreateMethodWithSwitch(new[] { 0, 1, 2 });
+        var method1 = CreateMethodWithSwitch([0, 1]);
+        var method2 = CreateMethodWithSwitch([0, 1, 2]);
 
         // Act
         var fingerprint1 = ComputeFingerprintViaReflection(method1);
@@ -170,7 +170,7 @@ public class PatchUtilsFingerprintTests
         var fingerprint = ComputeFingerprintViaReflection(method);
 
         // Assert
-        Assert.That(fingerprint, Is.EqualTo(0),
+        Assert.That(fingerprint, Is.Zero,
             "Methods with no body should return fingerprint 0");
     }
 
@@ -194,11 +194,7 @@ public class PatchUtilsFingerprintTests
         body.Instructions.Add(Instruction.Create(OpCodes.Ldarg_0)); // Load argument
 
         // Create target instructions (one for each case)
-        var targets = new List<Instruction>();
-        for (int i = 0; i < targetIndices.Length; i++)
-        {
-            targets.Add(Instruction.Create(OpCodes.Ldc_I4, targetIndices[i]));
-        }
+        var targets = targetIndices.Select(value => Instruction.Create(OpCodes.Ldc_I4, value)).ToList();
 
         // Create switch instruction with targets
         body.Instructions.Add(Instruction.Create(OpCodes.Switch, targets.ToArray()));
@@ -331,7 +327,7 @@ public class PatchUtilsFingerprintTests
         Assert.That(computeMethod, Is.Not.Null,
             "ComputeBodyFingerprint method should exist");
 
-        var result = computeMethod!.Invoke(null, new object[] { method });
+        var result = computeMethod!.Invoke(null, [method]);
         return (int)result!;
     }
 }

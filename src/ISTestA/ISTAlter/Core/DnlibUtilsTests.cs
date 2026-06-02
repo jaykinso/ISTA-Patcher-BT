@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Core;
 
 using dnlib.DotNet;
 using dnlib.DotNet.Emit;
-using ISTAlter.Utils;
+using global::ISTAlter.Utils;
 
 /// <summary>
 /// Tests for DnlibUtils extension methods and static helpers.
@@ -59,7 +59,7 @@ public class DnlibUtilsTests
     [Test]
     public void GetType_ExistingType_ReturnsTypeDef()
     {
-        using var module = ModuleDefMD.Load(typeof(ISTAlter.Utils.HashFileInfo).Module);
+        using var module = ModuleDefMD.Load(typeof(global::ISTAlter.Utils.HashFileInfo).Module);
 
         var type = module.GetType("ISTAlter.Utils.HashFileInfo");
 
@@ -70,7 +70,7 @@ public class DnlibUtilsTests
     [Test]
     public void GetType_NonExistingType_ReturnsNull()
     {
-        using var module = ModuleDefMD.Load(typeof(ISTAlter.Utils.HashFileInfo).Module);
+        using var module = ModuleDefMD.Load(typeof(global::ISTAlter.Utils.HashFileInfo).Module);
 
         var type = module.GetType("ISTAlter.Utils.DoesNotExist");
 
@@ -80,7 +80,7 @@ public class DnlibUtilsTests
     [Test]
     public void GetMethod_ExistingMethod_ReturnsMethodDef()
     {
-        using var module = ModuleDefMD.Load(typeof(ISTAlter.Utils.HashFileInfo).Module);
+        using var module = ModuleDefMD.Load(typeof(global::ISTAlter.Utils.HashFileInfo).Module);
 
         // CalculateHash(string) → Task<string>
         var method = module.GetMethod(
@@ -95,7 +95,7 @@ public class DnlibUtilsTests
     [Test]
     public void GetMethod_NonExistingMethod_ReturnsNull()
     {
-        using var module = ModuleDefMD.Load(typeof(ISTAlter.Utils.HashFileInfo).Module);
+        using var module = ModuleDefMD.Load(typeof(global::ISTAlter.Utils.HashFileInfo).Module);
 
         var method = module.GetMethod("ISTAlter.Utils.HashFileInfo", "DoesNotExist", "()System.Void");
 
@@ -127,7 +127,7 @@ public class DnlibUtilsTests
         var voidSig = _module.CorLibTypes.Void;
         var method = new MethodDefUser("Test", MethodSig.CreateStatic(voidSig));
 
-        Assert.Throws<InvalidOperationException>(() => method.EmptyingMethod());
+        Assert.Throws<InvalidOperationException>(method.EmptyingMethod);
     }
 
     // ────────────── ReturnZero / ReturnOne / ReturnTrue / ReturnFalse ──────────────
@@ -142,7 +142,7 @@ public class DnlibUtilsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(method.Body.Instructions, Has.Count.EqualTo(2));
-            Assert.That(method.Body.Instructions[0].GetLdcI4Value(), Is.EqualTo(0));
+            Assert.That(method.Body.Instructions[0].GetLdcI4Value(), Is.Zero);
             Assert.That(method.Body.Instructions[1].OpCode, Is.EqualTo(OpCodes.Ret));
         }
     }
@@ -174,7 +174,7 @@ public class DnlibUtilsTests
 
         method.ReturnFalseMethod();
 
-        Assert.That(method.Body.Instructions[0].GetLdcI4Value(), Is.EqualTo(0));
+        Assert.That(method.Body.Instructions[0].GetLdcI4Value(), Is.Zero);
     }
 
     [Test]
@@ -316,8 +316,10 @@ public class DnlibUtilsTests
     private MethodDefUser CreateMethodWithBody(IEnumerable<Instruction> instructions)
     {
         var voidSig = _module.CorLibTypes.Void;
-        var method = new MethodDefUser("Test", MethodSig.CreateStatic(voidSig));
-        method.Body = new CilBody();
+        var method = new MethodDefUser("Test", MethodSig.CreateStatic(voidSig))
+        {
+            Body = new CilBody()
+        };
         foreach (var instr in instructions)
         {
             method.Body.Instructions.Add(instr);

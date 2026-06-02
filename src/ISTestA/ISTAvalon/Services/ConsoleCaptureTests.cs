@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Services;
 
-using ISTAvalon.Models;
-using ISTAvalon.Services;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.Services;
 using Serilog.Events;
 
 public class ConsoleCaptureTests
@@ -50,7 +50,7 @@ public class ConsoleCaptureTests
     public async Task CommandExecutionService_ForwardConsoleOutputToLogSink()
     {
         var entries = new List<LogEntry>();
-        using var subscription = ISTAvalon.App.LogSink.Subscribe(entries.Add);
+        using var subscription = global::ISTAvalon.App.LogSink.Subscribe(entries.Add);
 
         var descriptor = new CommandDescriptor
         {
@@ -74,7 +74,7 @@ public class ConsoleCaptureTests
     public async Task CommandExecutionService_DoesNotLeakConsoleRedirection_BetweenSequentialRuns()
     {
         var entries = new List<LogEntry>();
-        using var subscription = ISTAvalon.App.LogSink.Subscribe(entries.Add);
+        using var subscription = global::ISTAvalon.App.LogSink.Subscribe(entries.Add);
 
         var descriptor = new CommandDescriptor
         {

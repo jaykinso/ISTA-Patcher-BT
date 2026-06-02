@@ -181,7 +181,7 @@ public class CommandTabViewModel : ObservableObject
             : null;
         if (clipboard is not null)
         {
-            await ClipboardExtensions.SetTextAsync(clipboard, text);
+            await clipboard.SetTextAsync(text);
         }
     }
 

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Models;
 
-using ISTAlter.Models.Rheingold.LicenseManagement;
-using ISTAlter.Models.Rheingold.LicenseManagement.CoreFramework;
+using global::ISTAlter.Models.Rheingold.LicenseManagement;
+using global::ISTAlter.Models.Rheingold.LicenseManagement.CoreFramework;
 
 public class LicenseSerializationTests
 {
@@ -58,7 +58,7 @@ public class LicenseSerializationTests
         var license = CreateLicense();
 
         var xml = license.Serialize();
-        var success = LicenseInfo.Deserialize(xml, out LicenseInfo? roundTripped, out var exception);
+        var success = LicenseInfo.Deserialize(xml, out var roundTripped, out var exception);
         var clone = (LicenseInfo)license.Clone();
 
         using (Assert.EnterMultipleScope())
@@ -77,7 +77,7 @@ public class LicenseSerializationTests
     [Test]
     public void EntitySerializer_InvalidXml_ReturnsFalseWithException()
     {
-        var success = LicenseInfo.Deserialize("<bad>", out LicenseInfo? data, out var exception);
+        var success = LicenseInfo.Deserialize("<bad>", out var data, out var exception);
 
         using (Assert.EnterMultipleScope())
         {
@@ -106,7 +106,7 @@ public class LicenseSerializationTests
     [Test]
     public void EntitySerializer_LoadAndSaveBooleanOverloads_ReportErrors()
     {
-        var loadSuccess = LicenseInfo.LoadFromFile(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), out LicenseInfo? data, out var loadException);
+        var loadSuccess = LicenseInfo.LoadFromFile(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")), out var data, out var loadException);
         var saveSuccess = CreateLicense().SaveToFile(Path.Combine(_tempPath, "missing-dir", "license.xml"), out var saveException);
 
         using (Assert.EnterMultipleScope())

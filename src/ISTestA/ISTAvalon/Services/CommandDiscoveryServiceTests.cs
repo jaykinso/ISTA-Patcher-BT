@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Services;
 
 using DotMake.CommandLine;
-using ISTAvalon.Models;
-using ISTAvalon.Services;
-using ISTAvalon.ViewModels;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.Services;
+using global::ISTAvalon.ViewModels;
 
 public class CommandDiscoveryServiceTests
 {
@@ -193,7 +193,7 @@ public class CommandDiscoveryServiceTests
         public Task RunAsync() => Task.CompletedTask;
     }
 
-    private static List<string> FlattenNames(IEnumerable<ISTAvalon.Models.CommandDescriptor> roots)
+    private static List<string> FlattenNames(IEnumerable<global::ISTAvalon.Models.CommandDescriptor> roots)
     {
         var names = new List<string>();
         foreach (var root in roots)
@@ -203,7 +203,7 @@ public class CommandDiscoveryServiceTests
 
         return names;
 
-        static void Add(ISTAvalon.Models.CommandDescriptor descriptor, ICollection<string> output)
+        static void Add(global::ISTAvalon.Models.CommandDescriptor descriptor, ICollection<string> output)
         {
             output.Add(descriptor.Name);
             foreach (var subcommand in descriptor.Subcommands)

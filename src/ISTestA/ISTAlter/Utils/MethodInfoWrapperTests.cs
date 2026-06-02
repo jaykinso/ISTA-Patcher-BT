@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAlter.Utils;
 
 using System.Reflection;
-using ISTAlter.Utils;
+using global::ISTAlter.Utils;
 
 public class MethodInfoWrapperTests
 {

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.ViewModels;
 
-using ISTAvalon.Models;
-using ISTAvalon.Services;
-using Serilog.Core;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.Services;
 using Serilog.Events;
 using Serilog.Parsing;
 

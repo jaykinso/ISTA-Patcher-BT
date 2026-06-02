@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Headless;
 
 using Avalonia;
 using Avalonia.Headless;
 using Avalonia.Headless.NUnit;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using ISTAvalon.Models;
-using ISTAvalon.ViewModels;
-using ISTAvalon.Views;
+using global::ISTAvalon.Models;
+using global::ISTAvalon.ViewModels;
+using global::ISTAvalon.Views;
 
 /// <summary>
 /// Headless UI tests for <see cref="MainWindow"/>.
@@ -277,8 +277,8 @@ public class MainWindowHeadlessTests
     [AvaloniaTest]
     public void Theme_SavedDarkSetting_LoadsAsDark()
     {
-        var original = new ISTAvalon.Models.GuiSettings { Theme = "Dark" };
-        ISTAvalon.Services.GuiSettingsService.Save(original);
+        var original = new global::ISTAvalon.Models.GuiSettings { Theme = "Dark" };
+        global::ISTAvalon.Services.GuiSettingsService.Save(original);
 
         var vm = new MainWindowViewModel();
         var window = new MainWindow { DataContext = vm };
@@ -297,8 +297,8 @@ public class MainWindowHeadlessTests
     [AvaloniaTest]
     public void Theme_SavedLightSetting_LoadsAsLight()
     {
-        var original = new ISTAvalon.Models.GuiSettings { Theme = "Light" };
-        ISTAvalon.Services.GuiSettingsService.Save(original);
+        var original = new global::ISTAvalon.Models.GuiSettings { Theme = "Light" };
+        global::ISTAvalon.Services.GuiSettingsService.Save(original);
 
         var vm = new MainWindowViewModel();
         var window = new MainWindow { DataContext = vm };
@@ -317,8 +317,8 @@ public class MainWindowHeadlessTests
     [AvaloniaTest]
     public void Theme_SavedDefaultSetting_LoadsAsDefault()
     {
-        var original = new ISTAvalon.Models.GuiSettings { Theme = "Default" };
-        ISTAvalon.Services.GuiSettingsService.Save(original);
+        var original = new global::ISTAvalon.Models.GuiSettings { Theme = "Default" };
+        global::ISTAvalon.Services.GuiSettingsService.Save(original);
 
         var vm = new MainWindowViewModel();
         var window = new MainWindow { DataContext = vm };
@@ -337,8 +337,8 @@ public class MainWindowHeadlessTests
     [AvaloniaTest]
     public void Theme_UnrecognisedSetting_FallsBackToDefault()
     {
-        var original = new ISTAvalon.Models.GuiSettings { Theme = "UnknownValue" };
-        ISTAvalon.Services.GuiSettingsService.Save(original);
+        var original = new global::ISTAvalon.Models.GuiSettings { Theme = "UnknownValue" };
+        global::ISTAvalon.Services.GuiSettingsService.Save(original);
 
         var vm = new MainWindowViewModel();
         var window = new MainWindow { DataContext = vm };

@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: Copyright 2026 TautCony
 
 // Assembly attribute must precede the namespace declaration.
-[assembly: Avalonia.Headless.AvaloniaTestApplication(typeof(ISTestA.HeadlessApp))]
+[assembly: Avalonia.Headless.AvaloniaTestApplication(typeof(ISTestA.ISTAvalon.Headless.HeadlessApp))]
 
-namespace ISTestA;
+namespace ISTestA.ISTAvalon.Headless;
 
 using Avalonia;
 using Avalonia.Headless;
