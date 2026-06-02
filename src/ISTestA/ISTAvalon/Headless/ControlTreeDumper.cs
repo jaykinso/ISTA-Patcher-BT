@@ -85,14 +85,13 @@ public static class ControlTreeDumper
                 break;
         }
 
-        if (node is Visual visual)
         {
-            if (!visual.IsVisible) extras.Add("IsVisible=false");
+            if (!node.IsVisible) extras.Add("IsVisible=false");
 
-            if (node is InputElement ie && !ie.IsEffectivelyEnabled)
+            if (node is InputElement { IsEffectivelyEnabled: false })
                 extras.Add("IsEnabled=false");
 
-            var bounds = visual.Bounds;
+            var bounds = node.Bounds;
             if (bounds != default)
                 extras.Add($"Bounds=({bounds.X:F0},{bounds.Y:F0},{bounds.Width:F0}x{bounds.Height:F0})");
         }
@@ -126,7 +125,7 @@ public static class ControlTreeDumper
             case NumericUpDown nud:
                 sb.AppendLine($"[NumericUpDown] Value={nud.Value}  Min={nud.Minimum}  Max={nud.Maximum}");
                 break;
-            case TextBlock tb when tb.IsEffectivelyVisible && !string.IsNullOrWhiteSpace(tb.Text):
+            case TextBlock { IsEffectivelyVisible: true } tb when !string.IsNullOrWhiteSpace(tb.Text):
                 sb.AppendLine($"[TextBlock] Text=\"{Truncate(tb.Text)}\"");
                 break;
         }

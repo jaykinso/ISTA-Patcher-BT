@@ -1,8 +1,6 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2022-2026 TautCony
 
-using Serilog.Core;
-
 namespace ISTAlter.Core;
 
 using System.Globalization;

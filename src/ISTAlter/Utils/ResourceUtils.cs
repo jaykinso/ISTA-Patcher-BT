@@ -104,20 +104,17 @@ public static class ResourceUtils
     {
         using var original = SKBitmap.Decode(input);
         using var typeface = SKTypeface.FromFamilyName("Arial", SKFontStyle.Normal);
+        using var font = new SKFont(typeface, 32);
 
         using var shadowPaint = new SKPaint();
-        shadowPaint.TextSize = 32;
         shadowPaint.IsAntialias = true;
-        shadowPaint.Typeface = typeface;
         shadowPaint.Color = new SKColor(0, 0, 0, (byte)(255 * 0.2f));
         using var textPaint = new SKPaint();
-        textPaint.TextSize = 32;
         textPaint.IsAntialias = true;
-        textPaint.Typeface = typeface;
         textPaint.Color = new SKColor(255, 255, 255, (byte)(255 * 0.6f));
 
-        textPaint.GetFontMetrics(out var metrics);
-        var textWidth = textPaint.MeasureText(watermarkText);
+        font.GetFontMetrics(out var metrics);
+        var textWidth = font.MeasureText(watermarkText);
         var textHeight = metrics.Descent - metrics.Ascent;
         var stepX = textWidth * 1.2f;
         var stepY = textHeight * 1.5f;
@@ -130,8 +127,8 @@ public static class ResourceUtils
         {
             for (var y = 0f; y < layerBitmap.Width; y += stepY)
             {
-                layerCanvas.DrawText(watermarkText, x + 1, y + 1 - metrics.Ascent, shadowPaint);
-                layerCanvas.DrawText(watermarkText, x, y - metrics.Ascent, textPaint);
+                layerCanvas.DrawText(watermarkText, x + 1, y + 1 - metrics.Ascent, SKTextAlign.Left, font, shadowPaint);
+                layerCanvas.DrawText(watermarkText, x, y - metrics.Ascent, SKTextAlign.Left, font, textPaint);
             }
         }
 

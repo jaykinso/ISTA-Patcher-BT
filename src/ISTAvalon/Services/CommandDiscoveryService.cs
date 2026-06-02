@@ -158,12 +158,7 @@ public static class CommandDiscoveryService
     private static string RootSortKey(MutableCommandDescriptor descriptor)
     {
         var index = Array.FindIndex(TabOrder, n => string.Equals(n, descriptor.Name, StringComparison.OrdinalIgnoreCase));
-        if (index >= 0)
-        {
-            return $"00-{index:000}-{descriptor.Name}";
-        }
-
-        return $"01-{descriptor.Name}";
+        return index >= 0 ? $"00-{index:000}-{descriptor.Name}" : $"01-{descriptor.Name}";
     }
 
     private static string ChildSortKey(MutableCommandDescriptor descriptor)

@@ -45,12 +45,7 @@ public static class AppMetadataProvider
         }
 
         var assemblyVersion = assembly.GetName().Version?.ToString();
-        if (!string.IsNullOrWhiteSpace(assemblyVersion))
-        {
-            return assemblyVersion;
-        }
-
-        return DevVersion;
+        return !string.IsNullOrWhiteSpace(assemblyVersion) ? assemblyVersion : DevVersion;
     }
 
     private static string? GetAssemblyMetadata(Assembly assembly, string key)

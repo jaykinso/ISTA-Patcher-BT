@@ -133,7 +133,7 @@ public static class RegistryUtils
         // Older 32-bit versions (< 4.55) need the WOW6432Node redirection node.
         var registryTemplate = IsSixtyFourBit(basePath)
             ? template
-            : template.Replace("SOFTWARE\\", "SOFTWARE\\WOW6432Node\\", StringComparison.Ordinal);
+            : template.Replace(@"SOFTWARE\", @"SOFTWARE\WOW6432Node\", StringComparison.Ordinal);
         File.WriteAllText(licenseFile, registryTemplate.Replace("{}", ToLiteral(value), StringComparison.Ordinal));
         Log.Information("Registry file generated: {Path}", licenseFile);
     }

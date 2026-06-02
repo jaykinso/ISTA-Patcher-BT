@@ -167,27 +167,25 @@ public static partial class LogMessageHighlighter
             return false;
         }
 
-        // 38;5;<n> (xterm 256 color)
-        if (mode == 5 && index + 2 < parts.Length && int.TryParse(parts[index + 2], out var paletteIndex))
+        switch (mode)
         {
-            index += 2;
-            brush = new SolidColorBrush(MapAnsi256ToColor(paletteIndex));
-            return true;
+            // 38;5;<n> (xterm 256 color)
+            case 5 when index + 2 < parts.Length && int.TryParse(parts[index + 2], out var paletteIndex):
+                index += 2;
+                brush = new SolidColorBrush(MapAnsi256ToColor(paletteIndex));
+                return true;
+            // 38;2;<r>;<g>;<b> (true color)
+            case 2 when
+                index + 4 < parts.Length &&
+                int.TryParse(parts[index + 2], out var r) &&
+                int.TryParse(parts[index + 3], out var g) &&
+                int.TryParse(parts[index + 4], out var b):
+                index += 4;
+                brush = new SolidColorBrush(Color.FromRgb((byte)ClampColor(r), (byte)ClampColor(g), (byte)ClampColor(b)));
+                return true;
+            default:
+                return false;
         }
-
-        // 38;2;<r>;<g>;<b> (true color)
-        if (mode == 2 &&
-            index + 4 < parts.Length &&
-            int.TryParse(parts[index + 2], out var r) &&
-            int.TryParse(parts[index + 3], out var g) &&
-            int.TryParse(parts[index + 4], out var b))
-        {
-            index += 4;
-            brush = new SolidColorBrush(Color.FromRgb((byte)ClampColor(r), (byte)ClampColor(g), (byte)ClampColor(b)));
-            return true;
-        }
-
-        return false;
     }
 
     private static int ClampColor(int value)
@@ -195,48 +193,50 @@ public static partial class LogMessageHighlighter
         return Math.Clamp(value, 0, 255);
     }
 
+    // Standard 16 ANSI colors (codes 0-15) aligned to xterm defaults.
+    private static readonly Color[] Ansi16Colors =
+    [
+        Color.FromRgb(  0,   0,   0), // 0  black
+        Color.FromRgb(128,   0,   0), // 1  maroon
+        Color.FromRgb(  0, 128,   0), // 2  green
+        Color.FromRgb(128, 128,   0), // 3  olive
+        Color.FromRgb(  0,   0, 128), // 4  navy
+        Color.FromRgb(128,   0, 128), // 5  purple
+        Color.FromRgb(  0, 128, 128), // 6  teal
+        Color.FromRgb(192, 192, 192), // 7  silver
+        Color.FromRgb(128, 128, 128), // 8  grey
+        Color.FromRgb(255,   0,   0), // 9  red
+        Color.FromRgb(  0, 255,   0), // 10 lime
+        Color.FromRgb(255, 255,   0), // 11 yellow
+        Color.FromRgb(  0,   0, 255), // 12 blue
+        Color.FromRgb(255,   0, 255), // 13 fuchsia
+        Color.FromRgb(  0, 255, 255), // 14 aqua
+        Color.FromRgb(255, 255, 255), // 15 white
+    ];
+
     private static Color MapAnsi256ToColor(int code)
     {
         code = Math.Clamp(code, 0, 255);
 
-        if (code < 16)
+        switch (code)
         {
-            // Standard + bright colors aligned to ANSI defaults.
-            return code switch
+            case < 16:
+                return Ansi16Colors[code];
+            case <= 231:
             {
-                0 => Color.Parse("#000000"),
-                1 => Color.Parse("#800000"),
-                2 => Color.Parse("#008000"),
-                3 => Color.Parse("#808000"),
-                4 => Color.Parse("#000080"),
-                5 => Color.Parse("#800080"),
-                6 => Color.Parse("#008080"),
-                7 => Color.Parse("#c0c0c0"),
-                8 => Color.Parse("#808080"),
-                9 => Color.Parse("#ff0000"),
-                10 => Color.Parse("#00ff00"),
-                11 => Color.Parse("#ffff00"),
-                12 => Color.Parse("#0000ff"),
-                13 => Color.Parse("#ff00ff"),
-                14 => Color.Parse("#00ffff"),
-                _ => Color.Parse("#ffffff"),
-            };
-        }
+                var colorIndex = code - 16;
+                var r = colorIndex / 36;
+                var g = (colorIndex % 36) / 6;
+                var b = colorIndex % 6;
 
-        if (code <= 231)
-        {
-            var colorIndex = code - 16;
-            var r = colorIndex / 36;
-            var g = (colorIndex % 36) / 6;
-            var b = colorIndex % 6;
-
-            return Color.FromRgb(Channel(r), Channel(g), Channel(b));
-
-            static byte Channel(int v) => v == 0 ? (byte)0 : (byte)(55 + (40 * v));
+                return Color.FromRgb(Channel(r), Channel(g), Channel(b));
+            }
         }
 
         var gray = (byte)(8 + (code - 232) * 10);
         return Color.FromRgb(gray, gray, gray);
+
+        static byte Channel(int v) => v == 0 ? (byte)0 : (byte)(55 + (40 * v));
     }
 
     private static IBrush GetLevelBrush(LogEventLevel level) => level switch
