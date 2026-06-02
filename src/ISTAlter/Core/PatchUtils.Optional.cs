@@ -43,7 +43,7 @@ public static partial class PatchUtils
                     inst.OpCode == OpCodes.Call && inst.Operand is IMethod methodOperand &&
                     methodOperand.Name == "IsProgrammingEnabled") is not { } instruction)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -81,7 +81,7 @@ public static partial class PatchUtils
 
             if (apiInitExtCalls.Count < 2)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -91,7 +91,7 @@ public static partial class PatchUtils
 
             if (indexOfSecondCall is -1 or < 1)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -101,7 +101,7 @@ public static partial class PatchUtils
             var lastParamInstruction = method.Body.Instructions[indexOfSecondCall - 1];
             if (lastParamInstruction.OpCode != OpCodes.Ldstr)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -111,7 +111,7 @@ public static partial class PatchUtils
             var get_IPAddress = method.FindOperand<MemberRef>(OpCodes.Callvirt, "System.String \u0042\u004d\u0057.Rheingold.CoreFramework.Contracts.Vehicle.IVciDevice::get_IPAddress()");
             if (get_IPAddress == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -161,7 +161,7 @@ public static partial class PatchUtils
 
             if (dictionaryCtorRef == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -232,7 +232,7 @@ public static partial class PatchUtils
 
             if (get_CurrentOperation == null || setIsSendOBFCMDataIsForbidden == null || onPropertyChanged == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -269,7 +269,7 @@ public static partial class PatchUtils
 
             if (get_CurrentOperation == null || get_DataContext == null || get_VecInfo == null || set_IsSendFastaDataForbidden == null || setIsSendFastaDataIsForbidden == null || onPropertyChanged == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -337,14 +337,14 @@ public static partial class PatchUtils
             var sendFastaDataToFBMCall = method.FindInstruction(OpCodes.Callvirt, "System.String \u0042\u004d\u0057.Rheingold.RheingoldSessionController.Logic::SendFastaDataToFBM(System.String,System.Boolean)");
             if (sendFastaDataToFBMCall == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
             var indexOfCall = method.Body.Instructions.IndexOf(sendFastaDataToFBMCall);
             if (indexOfCall is -1 or < 1)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -352,7 +352,7 @@ public static partial class PatchUtils
             var booleanInstruction = method.Body.Instructions[indexOfCall - 1];
             if (!booleanInstruction.IsLdcI4())
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -471,7 +471,7 @@ public static partial class PatchUtils
                 }
             }
 
-            LogPatchWarning("Could not find EnumFASTATransferMode initialization pattern in {Method}", method.FullName);
+            Log.Warning("Could not find EnumFASTATransferMode initialization pattern in {Method}", method.FullName);
         }
     }
 
@@ -520,7 +520,7 @@ public static partial class PatchUtils
             var ctor = method.FindOperand<MemberRef>(OpCodes.Newobj, "System.Void System.Nullable`1<System.Boolean>::.ctor(System.Boolean)");
             if (ctor == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -568,7 +568,7 @@ public static partial class PatchUtils
 
         if (result == 0)
         {
-            LogPatchWarning("found no applicable target in {Assembly}({Version})", module.Assembly.Name, version);
+            Log.Warning("found no applicable target in {Assembly}({Version})", module.Assembly.Name, version);
         }
 
         return result;
@@ -655,14 +655,14 @@ public static partial class PatchUtils
 
             if (indexOfRequestSwtAction == -1)
             {
-                LogPatchWarning("Required instructions not found (neither old nor new signature), can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found (neither old nor new signature), can not patch {Method}", method.FullName);
                 return;
             }
 
             var ldcI4One = method.Body.Instructions[indexOfRequestSwtAction - 1];
             if (!ldcI4One.IsLdcI4())
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -698,14 +698,14 @@ public static partial class PatchUtils
 
             if (indexOfRequestSwtAction == -1)
             {
-                LogPatchWarning("Required instructions not found (neither old nor new signature), can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found (neither old nor new signature), can not patch {Method}", method.FullName);
                 return;
             }
 
             var ldcI4One = instructions[indexOfRequestSwtAction - 1];
             if (!ldcI4One.IsLdcI4())
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -751,7 +751,7 @@ public static partial class PatchUtils
             var indexOfCallIsILeanActive = method.FindIndexOfInstruction(OpCodes.Call, "System.Boolean \u0042\u004d\u0057.Rheingold.CoreFramework.ConfigSettings::get_IsILeanActive()");
             if (indexOfCallIsILeanActive == -1)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -797,7 +797,7 @@ public static partial class PatchUtils
 
         if (result == 0)
         {
-            LogPatchWarning("found no applicable target in {Assembly}({Version})", module.Assembly.Name, version);
+            Log.Warning("found no applicable target in {Assembly}({Version})", module.Assembly.Name, version);
         }
 
         return result;
@@ -825,7 +825,7 @@ public static partial class PatchUtils
 
             if (!handleMissingEcusProcessed)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -834,7 +834,7 @@ public static partial class PatchUtils
             var getBNType = method.FindOperand<MemberRef>(OpCodes.Callvirt, "\u0042\u004d\u0057.Rheingold.CoreFramework.DatabaseProvider.BNType \u0042\u004d\u0057.Rheingold.CoreFramework.DatabaseProvider.typeVehicle::get_BNType()");
             if (indexOfSetIdentSuccessfully == -1 || getVecInfo == null || getBNType == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -894,7 +894,7 @@ public static partial class PatchUtils
 
             if (indexSetIdent == -1)
             {
-                LogPatchWarning("Could not find set_IDENT_SUCCESSFULLY in foreach loop in {Method}", method.FullName);
+                Log.Warning("Could not find set_IDENT_SUCCESSFULLY in foreach loop in {Method}", method.FullName);
                 return;
             }
 
@@ -907,7 +907,7 @@ public static partial class PatchUtils
 
             if (getVecInfo == null || getBNType == null)
             {
-                LogPatchWarning("Required method references not found in {Method}", method.FullName);
+                Log.Warning("Required method references not found in {Method}", method.FullName);
                 return;
             }
 
@@ -985,7 +985,7 @@ public static partial class PatchUtils
 
         if (result == 0)
         {
-            LogPatchWarning("found no applicable target in {Assembly}({Version})", module.Assembly.Name, version);
+            Log.Warning("found no applicable target in {Assembly}({Version})", module.Assembly.Name, version);
         }
 
         return result;
@@ -1001,21 +1001,21 @@ public static partial class PatchUtils
             var hasValueCall = method.FindInstruction(OpCodes.Call, "System.Boolean System.Nullable`1<System.Double>::get_HasValue()");
             if (hasValueCall == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
             var hasValueIndex = instructions.IndexOf(hasValueCall);
             if (hasValueIndex == -1 || hasValueIndex >= instructions.Count - 1)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
             var brfalseInstruction = instructions[hasValueIndex + 1];
             if (brfalseInstruction.OpCode != OpCodes.Brfalse_S)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -1024,7 +1024,7 @@ public static partial class PatchUtils
 
             if (valueComparisonBrfalse == null)
             {
-                LogPatchWarning("Required instructions not found, can not patch {Method}", method.FullName);
+                Log.Warning("Required instructions not found, can not patch {Method}", method.FullName);
                 return;
             }
 
@@ -1071,7 +1071,7 @@ public static partial class PatchUtils
 
             if (tryStartIdx == -1 || vehicleAccess == null || getVci == null || getVciType == null)
             {
-                LogPatchWarning("Could not find VCIType check pattern in {Method}", method.FullName);
+                Log.Warning("Could not find VCIType check pattern in {Method}", method.FullName);
                 return;
             }
 
@@ -1154,7 +1154,7 @@ public static partial class PatchUtils
                 localize == null || progressWaitCtor == null || register == null ||
                 checkForAutoSkip == null || getInteractionService == null)
             {
-                LogPatchWarning("Could not find existing method references in {Method}", method.FullName);
+                Log.Warning("Could not find existing method references in {Method}", method.FullName);
                 return;
             }
 
@@ -1187,7 +1187,7 @@ public static partial class PatchUtils
 
             if (func7000 == null || func9000 == null)
             {
-                LogPatchWarning("Lambda functions for voltage checks not found in {Method}", method.FullName);
+                Log.Warning("Lambda functions for voltage checks not found in {Method}", method.FullName);
                 return;
             }
 
@@ -1286,7 +1286,7 @@ public static partial class PatchUtils
 
             if (singletonField == null || lambda7000Method == null || lambda9000Method == null || funcConstructor == null)
             {
-                LogPatchWarning("Could not find all required components for lazy initialization in {Method}", method.FullName);
+                Log.Warning("Could not find all required components for lazy initialization in {Method}", method.FullName);
                 return;
             }
 
@@ -1298,7 +1298,7 @@ public static partial class PatchUtils
             var leaveInstruction = instructions.FirstOrDefault(i => i.OpCode == OpCodes.Leave || i.OpCode == OpCodes.Leave_S);
             if (leaveInstruction == null)
             {
-                LogPatchWarning("Could not find leave instruction in {Method}", method.FullName);
+                Log.Warning("Could not find leave instruction in {Method}", method.FullName);
                 return;
             }
 

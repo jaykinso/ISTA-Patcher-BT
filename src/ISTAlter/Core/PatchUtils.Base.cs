@@ -1,6 +1,8 @@
 ﻿// SPDX-License-Identifier: GPL-3.0-or-later
 // SPDX-FileCopyrightText: Copyright 2022-2026 TautCony
 
+using Serilog.Core;
+
 namespace ISTAlter.Core;
 
 using System.Globalization;
@@ -172,7 +174,7 @@ public static partial class PatchUtils
                 default:
                     if (instr.Operand != null)
                     {
-                        LogPatchWarning("Unhandled operand type {Type} in {Method}", instr.Operand.GetType(), method.FullName);
+                        Log.Warning("Unhandled operand type {Type} in {Method}", instr.Operand.GetType(), method.FullName);
                     }
 
                     break;
@@ -240,14 +242,14 @@ public static partial class PatchUtils
         var asyncStateMachineAttribute = method.CustomAttributes.FirstOrDefault(i => string.Equals(i.TypeFullName, "System.Runtime.CompilerServices.AsyncStateMachineAttribute", StringComparison.Ordinal));
         if (asyncStateMachineAttribute is not { ConstructorArguments: [{ Value: ValueTypeSig stateMachineType }] })
         {
-            LogPatchWarning("Required attribute not found, can not patch {Method}", method.FullName);
+            Log.Warning("Required attribute not found, can not patch {Method}", method.FullName);
             return 0;
         }
 
         var typeDef = stateMachineType.TypeDefOrRef.ResolveTypeDef();
         if (typeDef?.Methods.FirstOrDefault(m => m.Name == "MoveNext" && m.HasOverrides) is not { } generateMethod)
         {
-            LogPatchWarning("Required attribute not found, can not patch {Method}", method.FullName);
+            Log.Warning("Required attribute not found, can not patch {Method}", method.FullName);
             return 0;
         }
 
