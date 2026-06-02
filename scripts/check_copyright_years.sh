@@ -26,19 +26,28 @@ echo "Checking copyright years in file headers against git history..."
 echo "================================================================"
 echo
 
-declare -A tracked_files
-declare -A first_years
-declare -A last_years
-declare -A untracked_files
+# Associative array compatibility for bash 3.x
+_tmpdir=$(mktemp -d)
+trap 'rm -rf "$_tmpdir"' EXIT
+_tracked="$_tmpdir/tracked"
+_untracked="$_tmpdir/untracked"
+_first_years="$_tmpdir/first_years"
+_last_years="$_tmpdir/last_years"
+mkdir -p "$_tracked" "$_untracked" "$_first_years" "$_last_years"
+
+_assoc_set() { mkdir -p "$(dirname "$1/$2")" && printf '%s' "$3" > "$1/$2"; }
+_assoc_get() { [ -f "$1/$2" ] && cat "$1/$2" || printf ''; }
+_assoc_has() { [ -f "$1/$2" ]; }
+_assoc_del() { rm -f "$1/$2"; }
 files=()
 
 while IFS= read -r -d '' rel_file; do
-    tracked_files["$rel_file"]=1
+    _assoc_set "$_tracked" "$rel_file" 1
     files+=("$rel_file")
 done < <(git -C "$base_dir" ls-files -z -- "$src_rel/**/*.cs" "$src_rel/*.cs")
 
 while IFS= read -r -d '' rel_file; do
-    untracked_files["$rel_file"]=1
+    _assoc_set "$_untracked" "$rel_file" 1
     files+=("$rel_file")
 done < <(git -C "$base_dir" ls-files --others --exclude-standard -z -- "$src_rel/**/*.cs" "$src_rel/*.cs")
 
@@ -62,10 +71,10 @@ while IFS= read -r line; do
             if [[ "$path" != *.cs ]]; then
                 continue
             fi
-            if [ -z "${first_years[$path]}" ]; then
-                first_years["$path"]="$current_year"
+            if ! _assoc_has "$_first_years" "$path"; then
+                _assoc_set "$_first_years" "$path" "$current_year"
             fi
-            last_years["$path"]="$current_year"
+            _assoc_set "$_last_years" "$path" "$current_year"
             ;;
         R*)
             old_path="${paths%%$'\t'*}"
@@ -73,30 +82,30 @@ while IFS= read -r line; do
             if [[ "$new_path" != *.cs ]]; then
                 continue
             fi
-            if [ -n "${first_years[$old_path]}" ]; then
-                first_years["$new_path"]="${first_years[$old_path]}"
-                unset "first_years[$old_path]"
-            elif [ -z "${first_years[$new_path]}" ]; then
-                first_years["$new_path"]="$current_year"
+            if _assoc_has "$_first_years" "$old_path"; then
+                _assoc_set "$_first_years" "$new_path" "$(_assoc_get "$_first_years" "$old_path")"
+                _assoc_del "$_first_years" "$old_path"
+            elif ! _assoc_has "$_first_years" "$new_path"; then
+                _assoc_set "$_first_years" "$new_path" "$current_year"
             fi
-            last_years["$new_path"]="$current_year"
-            unset "last_years[$old_path]"
+            _assoc_set "$_last_years" "$new_path" "$current_year"
+            _assoc_del "$_last_years" "$old_path"
             ;;
     esac
 done < <(git -C "$base_dir" log --reverse --find-renames --format="__YEAR__%ad" --date=format:%Y --name-status -- "$src_rel")
 
 for rel_file in "${files[@]}"; do
     display_path="$rel_file:1"
-    if [ -n "${untracked_files[$rel_file]}" ]; then
+    if _assoc_has "$_untracked" "$rel_file"; then
         echo -e "${YELLOW}[UNTRACKED]${NC} $display_path"
         continue
     fi
-    if [ -z "${tracked_files[$rel_file]}" ]; then
+    if ! _assoc_has "$_tracked" "$rel_file"; then
         continue
     fi
 
-    first_year="${first_years[$rel_file]}"
-    last_year="${last_years[$rel_file]}"
+    first_year=$(_assoc_get "$_first_years" "$rel_file")
+    last_year=$(_assoc_get "$_last_years" "$rel_file")
 
     # Skip if file is not in git history
     if [ -z "$first_year" ]; then
