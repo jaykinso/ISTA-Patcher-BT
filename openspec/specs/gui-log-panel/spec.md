@@ -71,7 +71,7 @@ The GUI SHALL render execution log entries in the log panel with level-aware vis
 - **THEN** the log panel displays the text without raw escape characters and applies the mapped foreground colors
 
 ### Requirement: A `LogPanelPalette` class SHALL centralise all log panel colors
-The system SHALL provide a `LogPanelPalette` class that exposes brush properties for every color used in the log panel: per-level foregrounds (Verbose, Debug, Information, Warning, Error, Fatal), token foregrounds (String, Number), and panel chrome (Timestamp, Background, Header). All consumers SHALL read colors from this class.
+The system SHALL provide a `LogPanelPalette` class that exposes brush properties for every color used in the log panel: per-level foregrounds (Verbose, Debug, Information, Warning, Error, Fatal), token foregrounds (String, Number), panel chrome (Timestamp, Background, Header), and a full set of ANSI palette brushes covering the 16 standard ANSI colors and their 16 bright variants. All consumers SHALL read colors from this class.
 
 #### Scenario: Changing a palette brush affects new log entries
 - **WHEN** a `LogPanelPalette` brush property value is changed
@@ -80,6 +80,36 @@ The system SHALL provide a `LogPanelPalette` class that exposes brush properties
 #### Scenario: Default palette provides sensible colors
 - **WHEN** the application starts with no palette customisation
 - **THEN** all palette brush properties have non-null default values suitable for a dark background theme
+
+#### Scenario: ANSI palette brushes cover standard and bright colors
+- **WHEN** ANSI SGR foreground escape sequences specify standard (30-37) or bright (90-97) color codes
+- **THEN** the corresponding `LogPanelPalette` brush properties provide mapped colors for rendering
+
+### Requirement: A `HighlightedLogTextBlock` control SHALL render syntax-highlighted log entries
+The system SHALL provide a `HighlightedLogTextBlock` custom control that extends `SelectableTextBlock` and accepts a `LogEntry` as a bindable property. When the `LogEntry` property changes, the control SHALL clear its `InlineCollection` and repopulate it with `Run` elements produced by `LogMessageHighlighter.Highlight()`.
+
+#### Scenario: Control binds to LogEntry and renders highlighted runs
+- **WHEN** a `HighlightedLogTextBlock` receives a new `LogEntry` via data binding
+- **THEN** the control's inlines are replaced with color-highlighted runs reflecting the message content and log level
+
+#### Scenario: Control supports text selection
+- **WHEN** the user selects text within a `HighlightedLogTextBlock`
+- **THEN** the selected runs are highlighted with the platform selection style and can be copied
+
+### Requirement: A `LogMessageHighlighter` class SHALL tokenise log messages
+The system SHALL provide a `LogMessageHighlighter` static class that converts a log message string and log level into an ordered list of `Run` elements. The highlighter SHALL tokenise quoted strings and numeric literals for syntax coloring. When the message contains ANSI SGR escape sequences (`\u001b`), the highlighter SHALL switch to ANSI-aware processing that strips escape characters and applies mapped foreground colors.
+
+#### Scenario: Tokenise quoted strings and numbers in plain messages
+- **WHEN** `Highlight()` is called with a message containing `"quoted"` or numeric literals
+- **THEN** the returned runs include separate runs for quoted content (using `StringBrush`) and numbers (using `NumberBrush`), with remaining text using the level-based brush
+
+#### Scenario: ANSI-aware processing for console output
+- **WHEN** `Highlight()` is called with a message containing ANSI SGR escape sequences
+- **THEN** the returned runs apply the mapped ANSI foreground colors from `LogPanelPalette` and omit raw escape characters
+
+#### Scenario: Non-ANSI, non-token text uses level color
+- **WHEN** `Highlight()` processes a plain text segment that is neither quoted nor numeric
+- **THEN** the segment is rendered with the brush corresponding to the log event level
 
 ### Requirement: Log entries SHALL support text selection and copy
 Users SHALL be able to select text within individual log entries and copy it to the system clipboard.

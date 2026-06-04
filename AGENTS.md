@@ -44,7 +44,9 @@ dotnet build
 dotnet build -c Release
 dotnet test
 dotnet test src/ISTestA/ISTestA.csproj --filter FullyQualifiedName~UIAutomationTests
-bash scripts/check_copyright_years.sh
+python scripts/check_copyright_years.py
+python scripts/test-coverage.py
+python scripts/test-coverage.py --html --open
 ```
 
 Run the CLI:
