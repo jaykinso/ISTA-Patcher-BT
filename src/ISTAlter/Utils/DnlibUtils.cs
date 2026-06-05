@@ -46,7 +46,7 @@ public static class DnlibUtils
     /// <returns>
     /// A <see cref="dnlib.DotNet.TypeDef"/> object representing the specified type if found; otherwise, null.
     /// </returns>
-    public static TypeDef? GetType(this ModuleDefMD module, string type) =>
+    public static TypeDef? GetType(this ModuleDef module, string type) =>
         module.GetTypes().FirstOrDefault(tp => string.Equals(tp.FullName, type, StringComparison.Ordinal));
 
     /// <summary>
@@ -59,7 +59,7 @@ public static class DnlibUtils
     /// <returns>
     /// A <see cref="dnlib.DotNet.MethodDef"/> object representing the specified method if found; otherwise, null.
     /// </returns>
-    public static MethodDef? GetMethod(this ModuleDefMD module, string type, string name, string desc)
+    public static MethodDef? GetMethod(this ModuleDef module, string type, string name, string desc)
     {
         return module.GetType(type)?.Methods.FirstOrDefault(m => m.Name.Equals(name) && DescriptionOf(m).Equals(desc, StringComparison.Ordinal));
     }

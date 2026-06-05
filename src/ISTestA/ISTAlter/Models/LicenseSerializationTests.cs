@@ -3,6 +3,7 @@
 
 namespace ISTestA.ISTAlter.Models;
 
+using System.Security.Cryptography;
 using System.Text;
 using global::ISTAlter.Models.Rheingold.DatabaseProvider;
 using global::ISTAlter.Models.Rheingold.LicenseManagement;
@@ -190,6 +191,48 @@ public class LicenseSerializationTests
             Assert.That(saveSuccess, Is.False);
             Assert.That(saveException, Is.Not.Null);
         }
+    }
+
+    [Test]
+    public void LicenseStatusChecker_NullLicenseKey_ReturnsFalse()
+    {
+        using var rsa = new RSACryptoServiceProvider(1024);
+        var license = CreateLicense();
+        license.LicenseKey = null;
+
+        var valid = LicenseStatusChecker.IsLicenseValid(license, LicenseStatusChecker.GetRSAPKCS1SignatureDeformatter(rsa.ToXmlString(includePrivateParameters: false)));
+
+        Assert.That(valid, Is.False);
+    }
+
+    [Test]
+    public void LicenseStatusChecker_GeneratedLicenseKey_ValidatesWithMatchingKey()
+    {
+        using var rsa = new RSACryptoServiceProvider(1024);
+        var license = CreateLicense();
+
+        LicenseStatusChecker.GenerateLicenseKey(license, rsa.ToXmlString(includePrivateParameters: true));
+        var valid = LicenseStatusChecker.IsLicenseValid(license, LicenseStatusChecker.GetRSAPKCS1SignatureDeformatter(rsa.ToXmlString(includePrivateParameters: false)));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(license.LicenseKey, Is.Not.Null);
+            Assert.That(license.LicenseKey, Is.Not.Empty);
+            Assert.That(valid, Is.True);
+        }
+    }
+
+    [Test]
+    public void LicenseStatusChecker_TamperedLicense_FailsValidation()
+    {
+        using var rsa = new RSACryptoServiceProvider(1024);
+        var license = CreateLicense();
+        LicenseStatusChecker.GenerateLicenseKey(license, rsa.ToXmlString(includePrivateParameters: true));
+
+        license.Name = "Tampered";
+        var valid = LicenseStatusChecker.IsLicenseValid(license, LicenseStatusChecker.GetRSAPKCS1SignatureDeformatter(rsa.ToXmlString(includePrivateParameters: false)));
+
+        Assert.That(valid, Is.False);
     }
 
     private static LicenseInfo CreateLicense()

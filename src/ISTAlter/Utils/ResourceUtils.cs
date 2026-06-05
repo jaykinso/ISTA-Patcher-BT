@@ -11,7 +11,7 @@ using SkiaSharp;
 
 public static class ResourceUtils
 {
-    public static Stream? GetFromResource(ModuleDefMD module, string resourceName, string fileName)
+    public static Stream? GetFromResource(ModuleDef module, string resourceName, string fileName)
     {
         foreach (var resource in module.Resources)
         {
@@ -34,12 +34,12 @@ public static class ResourceUtils
         throw new Exception("Resource not found.");
     }
 
-    public static void UpdateResource(ModuleDefMD module, string resourceName, string fileName, byte[] newContent)
+    public static void UpdateResource(ModuleDef module, string resourceName, string fileName, byte[] newContent)
     {
         UpdateResource(module, resourceName, fileName, _ => newContent);
     }
 
-    public static void UpdateResource(ModuleDefMD module, string resourceName, string fileName, Func<DictionaryEntry, byte[]> handler)
+    public static void UpdateResource(ModuleDef module, string resourceName, string fileName, Func<DictionaryEntry, byte[]> handler)
     {
         if (module.Resources.FirstOrDefault(r => r.Name == resourceName) is not EmbeddedResource embeddedResource)
         {

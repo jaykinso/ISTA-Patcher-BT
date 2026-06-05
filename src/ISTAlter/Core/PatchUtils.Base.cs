@@ -193,7 +193,7 @@ public static partial class PatchUtils
     /// <param name="memberName">The name of the method applying the patch.</param>
     /// <returns>The number of methods patched.</returns>
     public static int PatchFunction(
-        this ModuleDefMD module,
+        this ModuleDef module,
         string type,
         string name,
         string desc,
@@ -223,7 +223,7 @@ public static partial class PatchUtils
     /// <param name="memberName">The name of the method applying the patch.</param>
     /// <returns>The number of methods patched.</returns>
     public static int PatchAsyncFunction(
-        this ModuleDefMD module,
+        this ModuleDef module,
         string type,
         string name,
         string desc,
@@ -266,7 +266,7 @@ public static partial class PatchUtils
     /// <param name="memberName">The name of the method applying the patch.</param>
     /// <returns>The number of methods patched.</returns>
     public static int PatchGetter(
-        this ModuleDefMD module,
+        this ModuleDef module,
         string type,
         string propertyName,
         Action<MethodDef> operation,
@@ -297,7 +297,7 @@ public static partial class PatchUtils
     /// </summary>
     /// <param name="module">module to check.</param>
     /// <returns>ture for assembly has been patched.</returns>
-    public static string? HavePatchedMark(ModuleDefMD module)
+    public static string? HavePatchedMark(ModuleDef module)
     {
         var attributeNeo = module.Assembly.CustomAttributes.FirstOrDefault(attr =>
             attr.AttributeType.Name == "PatchedAttribute" &&
@@ -342,7 +342,7 @@ public static partial class PatchUtils
     /// Set the patched mark to the assembly.
     /// </summary>
     /// <param name="module">module to set.</param>
-    public static void SetPatchedMarkInner(ModuleDefMD module)
+    public static void SetPatchedMarkInner(ModuleDef module)
     {
         if (HavePatchedMark(module) != null)
         {
@@ -375,7 +375,7 @@ public static partial class PatchUtils
     /// </summary>
     /// <param name="module">module to add.</param>
     /// <returns>The added attribute.</returns>
-    public static TypeDefUser AddPatchedAttribute(ModuleDefMD module)
+    public static TypeDefUser AddPatchedAttribute(ModuleDef module)
     {
         var attributeType = new TypeDefUser("ISTAttributes", "PatchedAttribute", module.CorLibTypes.GetTypeRef("System", "Attribute"));
         module.Types.Add(attributeType);
@@ -417,7 +417,7 @@ public static partial class PatchUtils
     /// <param name="module">Module to check.</param>
     /// <param name="patcher">Patcher to check.</param>
     /// <returns>True if the module's version is within the declared range (or no range is declared).</returns>
-    public static bool IsVersionInRange(ModuleDefMD module, System.Reflection.MethodInfo? patcher)
+    public static bool IsVersionInRange(ModuleDef module, System.Reflection.MethodInfo? patcher)
     {
         var untilVersion = patcher?.GetCustomAttribute<UntilVersionAttribute>()?.Version;
         var fromVersion = patcher?.GetCustomAttribute<FromVersionAttribute>()?.Version;
@@ -452,7 +452,7 @@ public static partial class PatchUtils
     /// <param name="module">Module to check.</param>
     /// <param name="patcher">Patcher to check.</param>
     /// <returns>True if the patcher is applicable.</returns>
-    public static bool IsPatchApplicable(ModuleDefMD module, System.Reflection.MethodInfo? patcher)
+    public static bool IsPatchApplicable(ModuleDef module, System.Reflection.MethodInfo? patcher)
     {
         var libraryNames = patcher?.GetCustomAttribute<LibraryNameAttribute>()?.FileName;
         var untilVersion = patcher?.GetCustomAttribute<UntilVersionAttribute>()?.Version;
