@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.bmw.com/ibase/beans/dealerdata"
+           xmlns="http://www.bmw.com/ibase/beans/dealerdata"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+  <xs:element name="Address" type="Address" nillable="true" />
+  <xs:element name="Communication" type="Communication" nillable="true" />
+  <xs:element name="Contract" type="Contract" nillable="true" />
+  <xs:element name="DealerMasterData" type="DealerMasterData" nillable="false" />
+  <xs:element name="DistributionPartner" type="DistributionPartner" nillable="false" />
+  <xs:element name="Outlet" type="Outlet" nillable="true" />
+  <xs:element name="Phone" type="Phone" nillable="true" />
+
+  <xs:complexType name="Address">
+    <xs:attribute name="street1" type="xs:string" />
+    <xs:attribute name="street2" type="xs:string" />
+    <xs:attribute name="postalCode" type="xs:string" />
+    <xs:attribute name="town1" type="xs:string" />
+    <xs:attribute name="town2" type="xs:string" />
+    <xs:attribute name="country" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="Communication">
+    <xs:sequence>
+      <xs:element name="voice" type="Phone" form="unqualified" />
+      <xs:element name="fax" type="Phone" form="unqualified" nillable="true" />
+    </xs:sequence>
+    <xs:attribute name="email" type="xs:string" use="required" />
+    <xs:attribute name="url" type="xs:anyURI" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="Contract">
+    <xs:sequence>
+      <xs:element name="brand" type="xs:string" form="unqualified" minOccurs="0" />
+      <xs:element name="product" type="Product" form="unqualified" />
+      <xs:element name="businessLine" type="BusinessLine" form="unqualified" />
+      <xs:element name="salesBranch" type="xs:string" form="unqualified" minOccurs="0" />
+    </xs:sequence>
+    <xs:attribute name="internationalDealerNumber" type="xs:string" />
+    <xs:attribute name="nationalDealerNumber" type="xs:string" />
+    <xs:attribute name="startDate" type="xs:dateTime" use="required" />
+    <xs:attribute name="endContractDate" type="xs:dateTime" />
+    <xs:attribute name="endServiceDate" type="xs:dateTime" />
+    <xs:attribute name="mobileService" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="DealerMasterData">
+    <xs:sequence>
+      <xs:element name="distributionPartner" type="DistributionPartner" form="unqualified" />
+    </xs:sequence>
+    <xs:attribute name="expirationDate" type="xs:dateTime" use="required" />
+    <xs:attribute name="verificationCode" type="xs:string" use="required" />
+    <xs:attribute name="hardwareId" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="DistributionPartner">
+    <xs:sequence>
+      <xs:element name="outlet" type="Outlet" form="unqualified" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="distributionPartnerNumber" type="xs:string" use="required" />
+    <xs:attribute name="name" type="xs:string" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="Outlet">
+    <xs:sequence>
+      <xs:element name="address" type="Address" form="unqualified" />
+      <xs:element name="contact" type="Communication" form="unqualified" />
+      <xs:element name="businessRelationship" type="BusinessRelationship" form="unqualified" />
+      <xs:element name="marketLanguage" type="xs:language" form="unqualified" maxOccurs="unbounded" />
+      <xs:element name="contract" type="Contract" form="unqualified" maxOccurs="unbounded" />
+    </xs:sequence>
+    <xs:attribute name="outletNumber" type="xs:integer" use="required" />
+    <xs:attribute name="name" type="xs:string" use="required" />
+    <xs:attribute name="protectionVehicleService" type="xs:boolean" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="Phone">
+    <xs:attribute name="countryCode" type="xs:string" />
+    <xs:attribute name="areaCode" type="xs:string" />
+    <xs:attribute name="localNumber" type="xs:string" />
+  </xs:complexType>
+
+  <xs:simpleType name="BusinessLine">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="VehicleSales" />
+      <xs:enumeration value="Service" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="BusinessRelationship">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Contract" />
+      <xs:enumeration value="Independent" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Product">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Motorcycle" />
+      <xs:enumeration value="Vehicle" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

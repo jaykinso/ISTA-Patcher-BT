@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:codegen="urn:ista-patcher:xsd-codegen"
+           targetNamespace="http://tempuri.org/LicenseInfo.xsd"
+           xmlns="http://tempuri.org/LicenseInfo.xsd"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified">
+  <xs:annotation>
+    <xs:documentation>
+      The codegen namespace carries ISTA-Patcher-specific CLR generation hints.
+      These annotations are not part of the XML instance contract.
+    </xs:documentation>
+    <xs:appinfo>
+      <codegen:class xsdType="LicenseInfo" clrBaseTypes="EntitySerializer&lt;LicenseInfo&gt;, ICloneable" clrUsingNamespace="ISTAlter.Models.Rheingold.LicenseManagement" />
+      <codegen:class xsdType="LicensePackage" clrBaseTypes="EntitySerializer&lt;LicensePackage&gt;" clrUsingNamespace="ISTAlter.Models.Rheingold.LicenseManagement" />
+    </xs:appinfo>
+  </xs:annotation>
+
+  <xs:element name="LicenseInfo" type="LicenseInfo" nillable="false" />
+  <xs:element name="LicensePackage" type="LicensePackage" nillable="true" />
+
+  <xs:complexType name="LicenseInfo">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="Email" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="Expiration" type="xs:dateTime" />
+      <xs:element name="Comment" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="ComputerName" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="UserName" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="AvailableBrandTypes" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="AvailableLanguages" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="AvailableOperationModes" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="DistributionPartnerNumber" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="ComputerCharacteristics" type="xs:base64Binary" minOccurs="0" nillable="true" />
+      <xs:element name="LicenseKey" type="xs:base64Binary" minOccurs="0" nillable="true" />
+      <xs:element name="LicenseServerURL" type="xs:string" minOccurs="0" nillable="true" />
+      <xs:element name="LicenseType" type="LicenseType" default="offline" />
+      <xs:element name="SubLicenses" type="LicensePackage" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LicensePackage">
+    <xs:sequence>
+      <xs:element name="PackageName" type="xs:string" minOccurs="0" />
+      <xs:element name="PackageVersion" type="xs:string" minOccurs="0" />
+      <xs:element name="PackageExpire" type="xs:dateTime" />
+    </xs:sequence>
+    <xs:attribute name="PackageRule" type="xs:string" />
+  </xs:complexType>
+
+  <xs:simpleType name="LicenseType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="offline" />
+      <xs:enumeration value="online" />
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

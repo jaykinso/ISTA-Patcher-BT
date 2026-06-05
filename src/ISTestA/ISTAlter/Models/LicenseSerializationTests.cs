@@ -3,6 +3,8 @@
 
 namespace ISTestA.ISTAlter.Models;
 
+using System.Text;
+using global::ISTAlter.Models.Rheingold.DatabaseProvider;
 using global::ISTAlter.Models.Rheingold.LicenseManagement;
 using global::ISTAlter.Models.Rheingold.LicenseManagement.CoreFramework;
 
@@ -100,6 +102,77 @@ public class LicenseSerializationTests
             Assert.That(File.Exists(_tempPath), Is.True);
             Assert.That(loaded.Name, Is.EqualTo(license.Name));
             Assert.That(loaded.SubLicenses, Has.Count.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public void GeneratedLicenseModels_PreserveExpectedXmlAttributes()
+    {
+        var xml = LicenseInfoSerializer.ToString(CreateLicense());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(xml, Does.Contain("xmlns=\"http://tempuri.org/LicenseInfo.xsd\""));
+            Assert.That(xml, Does.Contain("<SubLicenses PackageRule=\"Allow\">"));
+            Assert.That(xml, Does.Contain("<ComputerCharacteristics>AQID</ComputerCharacteristics>"));
+            Assert.That(xml, Does.Contain("<LicenseType>offline</LicenseType>"));
+        }
+    }
+
+    [Test]
+    public void GeneratedDealerDataModels_SerializeWithUnqualifiedNestedElements()
+    {
+        var dealerData = new DealerMasterData
+        {
+            expirationDate = new DateTime(2030, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            verificationCode = "verification",
+            hardwareId = "hardware",
+            distributionPartner = new DistributionPartner
+            {
+                distributionPartnerNumber = "12345",
+                name = "Dealer",
+                outlet =
+                [
+                    new Outlet
+                    {
+                        outletNumber = "1",
+                        name = "Outlet",
+                        protectionVehicleService = true,
+                        address = new Address { country = "US" },
+                        contact = new Communication
+                        {
+                            email = "dealer@example.com",
+                            url = "https://example.com",
+                            voice = new Phone { countryCode = "1" },
+                        },
+                        businessRelationship = BusinessRelationship.Independent,
+                        marketLanguage = ["en-US"],
+                        contract =
+                        [
+                            new Contract
+                            {
+                                brand = "BMW",
+                                product = Product.Vehicle,
+                                businessLine = BusinessLine.Service,
+                                startDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                                mobileService = true,
+                                mobileServiceSpecified = true,
+                            },
+                        ],
+                    },
+                ],
+            },
+        };
+
+        var xml = Encoding.UTF8.GetString(DealerMasterData.Serialize(dealerData));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(xml, Does.Contain("xmlns=\"http://www.bmw.com/ibase/beans/dealerdata\""));
+            Assert.That(xml, Does.Contain("<distributionPartner "));
+            Assert.That(xml, Does.Contain("<outlet "));
+            Assert.That(xml, Does.Contain("<marketLanguage>en-US</marketLanguage>"));
+            Assert.That(xml, Does.Contain("mobileService=\"true\""));
         }
     }
 
