@@ -87,23 +87,45 @@ def print_coverage_summary(coverage_file: Path) -> None:
         )
 
 
-def ensure_reportgenerator() -> None:
-    """Install reportgenerator global tool if not present."""
-    result = run_command("reportgenerator", "--version", capture_output=True)
-    if result.returncode != 0:
-        print()
-        print("[INFO] reportgenerator not found. Installing dotnet-reportgenerator-globaltool...")
-        run_command("dotnet", "tool", "install", "-g", "dotnet-reportgenerator-globaltool", check=True)
+def get_reportgenerator_command() -> str | None:
+    """Find reportgenerator from PATH or the default dotnet global tool directory."""
+    command = shutil.which("reportgenerator")
+    if command is not None:
+        return command
+
+    tool_name = "reportgenerator.exe" if platform.system() == "Windows" else "reportgenerator"
+    global_tool = Path.home() / ".dotnet" / "tools" / tool_name
+    if global_tool.is_file():
+        return str(global_tool)
+
+    return None
+
+
+def ensure_reportgenerator() -> str:
+    """Install reportgenerator global tool if not present and return its command path."""
+    command = get_reportgenerator_command()
+    if command is not None:
+        return command
+
+    print()
+    print("[INFO] reportgenerator not found. Installing dotnet-reportgenerator-globaltool...")
+    run_command("dotnet", "tool", "install", "-g", "dotnet-reportgenerator-globaltool", check=True)
+
+    command = get_reportgenerator_command()
+    if command is None:
+        raise RuntimeError("reportgenerator was installed, but its executable could not be found.")
+
+    return command
 
 
 def generate_html_report(coverage_file: Path, target_dir: Path) -> None:
     """Generate HTML coverage report using reportgenerator."""
-    ensure_reportgenerator()
+    reportgenerator = ensure_reportgenerator()
 
     print()
     print("[INFO] Generating HTML report...")
     run_command(
-        "reportgenerator",
+        reportgenerator,
         f"-reports:{coverage_file}",
         f"-targetdir:{target_dir}",
         "-reporttypes:Html;TextSummary",
@@ -187,7 +209,12 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.generate_html:
         html_report_dir = result_dir / "coverage-report"
-        generate_html_report(normalized_coverage, html_report_dir)
+        try:
+            generate_html_report(normalized_coverage, html_report_dir)
+        except RuntimeError as ex:
+            print(f"[ERROR] {ex}", file=sys.stderr)
+            return 1
+
         if args.open_html:
             open_in_browser(html_report_dir / "index.html")
 
