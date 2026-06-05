@@ -8,9 +8,9 @@ using ISTAPatcher.Tasks;
 TaskProvider.GatherTasks<IStartupTask>().Run(args);
 var theme = new CliTheme(CliTheme.Default)
 {
-    DefaultStyle = new CliStyle(ConsoleColor.DarkGray, OperatingSystem.IsWindows() ? (CliColor?)ConsoleColor.Black : null, null),
-    HeadingStyle = new CliStyle(ConsoleColor.Blue, null, null),
-    FirstColumnStyle = new CliStyle(ConsoleColor.Cyan, null, null),
-    SecondColumnStyle = new CliStyle(ConsoleColor.Green, null, null),
+    DefaultStyle = new CliStyle(ConsoleColor.DarkGray),
+    HeadingStyle = new CliStyle(ConsoleColor.Blue),
+    FirstColumnStyle = new CliStyle(ConsoleColor.Cyan),
+    SecondColumnStyle = new CliStyle(ConsoleColor.Green),
 };
 return await Cli.RunAsync<RootCommand>(args, new CliSettings { Theme = theme });

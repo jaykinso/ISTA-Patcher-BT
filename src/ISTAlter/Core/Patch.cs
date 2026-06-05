@@ -47,7 +47,25 @@ public static partial class Patch
         }
 
         timer.Stop();
-        Log.Information(@"=== ISTA Patch Done in {Time:mm\:ss\.fff} ===", timer.Elapsed);
+
+        var attemptedPatches = patcherProvider.Patches.Where(p => p.AttemptedCount > 0).ToList();
+        var appliedCount = attemptedPatches.Count(p => p.AppliedCount > 0);
+        var attemptedCount = attemptedPatches.Count;
+        var skippedCount = patcherProvider.Patches.Count - attemptedCount;
+        var totalFunctions = patcherProvider.Patches.Sum(p => p.AppliedCount);
+
+        const string green = "[32m";
+        const string red = "[31m";
+        const string reset = "[0m";
+        var countColor = appliedCount == attemptedCount ? green : red;
+        var counter = $"{countColor}{appliedCount}/{attemptedCount}{reset}";
+
+        Log.Information(
+            @"=== ISTA Patch Done in {Time:mm\:ss\.fff} [{Counter} patches, {Functions} functions, {Skipped} skipped] ===",
+            timer.Elapsed,
+            counter,
+            totalFunctions,
+            skippedCount);
     }
 
     private static void PatchSingleFile(string pendingPatchItem, string guiBasePath, int indentLength, IPatcherProvider patcherProvider, ISTAOptions.PatchOptions options)
@@ -143,13 +161,19 @@ public static partial class Patch
                     continue;
                 }
 
-                if (!PatchUtils.IsPatchApplicable(module, patch.Method))
+                if (!PatchUtils.IsVersionInRange(module, patch.Method) || !PatchUtils.IsPatchApplicable(module, patch.Method))
                 {
                     resultBuilder.Append('-');
                     continue;
                 }
 
-                var patchedCount = patch.Delegator(module);
+                patch.AddAttemptedCount();
+                int patchedCount;
+                using (PatchUtils.BeginPatchScope(patch.Method.Name))
+                {
+                    patchedCount = patch.Delegator(module);
+                }
+
                 patch.AddAppliedCount(patchedCount);
                 if (patchedCount > 0)
                 {
@@ -221,6 +245,8 @@ public static partial class Patch
             }
         }
 
+        return;
+
         static bool ShouldSkipPatch(string[] skipLibraries, string[] libraryList)
         {
             foreach (var skipLibrary in skipLibraries)
@@ -238,14 +264,15 @@ public static partial class Patch
     private static IEnumerable<string> BuildIndicator(List<PatchInfo> patches)
     {
         return patches
-               .Select(p => (Name: FormatName(p.Method), Count: p.AppliedCount))
+               .Select(p => (Name: FormatName(p.Method), Count: p.AppliedCount, Attempted: p.AttemptedCount))
                .Reverse()
                .Select((item, idx) =>
                {
                    var revIdx = patches.Count - 1 - idx;
                    var verticalBars = new string('│', revIdx);
                    var horizontalBars = new string('─', idx);
-                   return $"{verticalBars}└{horizontalBars}>[{item.Name}: {item.Count}]";
+                   var label = item.Attempted == 0 ? "skip" : item.Count.ToString();
+                   return $"{verticalBars}└{horizontalBars}>[{item.Name}: {label}]";
                });
 
         string FormatName(MethodInfo method)

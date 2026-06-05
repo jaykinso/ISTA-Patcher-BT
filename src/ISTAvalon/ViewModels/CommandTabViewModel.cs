@@ -103,7 +103,7 @@ public class CommandTabViewModel : ObservableObject
         ResetToPresetCommand = new RelayCommand(ResetToPreset, () => HasPreset);
     }
 
-    private static IReadOnlyList<CommandDescriptor> FlattenCommands(CommandDescriptor root)
+    private static List<CommandDescriptor> FlattenCommands(CommandDescriptor root)
     {
         var result = new List<CommandDescriptor> { root };
         AddSubcommands(root, result);
@@ -181,7 +181,7 @@ public class CommandTabViewModel : ObservableObject
             : null;
         if (clipboard is not null)
         {
-            await ClipboardExtensions.SetTextAsync(clipboard, text);
+            await clipboard.SetTextAsync(text);
         }
     }
 

@@ -45,7 +45,7 @@ public sealed class ConsoleCaptureScope : IDisposable
 
     private sealed class LineInterceptingTextWriter(Action<string> onLine) : TextWriter
     {
-        private readonly object _gate = new();
+        private readonly Lock _gate = new();
         private readonly StringBuilder _buffer = new();
 
         public override Encoding Encoding => Encoding.UTF8;
@@ -100,18 +100,17 @@ public sealed class ConsoleCaptureScope : IDisposable
 
         private void AppendChar(char ch)
         {
-            if (ch == '\r')
+            switch (ch)
             {
-                return;
+                case '\r':
+                    return;
+                case '\n':
+                    EmitLine();
+                    return;
+                default:
+                    _buffer.Append(ch);
+                    break;
             }
-
-            if (ch == '\n')
-            {
-                EmitLine();
-                return;
-            }
-
-            _buffer.Append(ch);
         }
 
         private void EmitLine()

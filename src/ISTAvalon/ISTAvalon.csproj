@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Version>2.5.0</Version>
-    <InformationalVersion>2.5.0</InformationalVersion>
+    <Version>2.5.1</Version>
+    <InformationalVersion>2.5.1</InformationalVersion>
     <Copyright>Copyright (C) 2022-2026 TautCony.
 Released under the GNU GPLv3+.</Copyright>
     <Title>$(AssemblyName)</Title>
@@ -25,16 +25,17 @@ Released under the GNU GPLv3+.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Desktop" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.3" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.3" />
+    <PackageReference Include="Avalonia" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.0.4" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="12.0.4" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="Optris.Icons.Avalonia" Version="12.0.6" />
     <PackageReference Include="Optris.Icons.Avalonia.FontAwesome" Version="12.0.6" />
-    <PackageReference Include="Sentry" Version="6.5.0" />
-    <PackageReference Include="Sentry.Profiling" Version="6.5.0" />
-    <PackageReference Include="Sentry.Serilog" Version="6.5.0" />
+    <PackageReference Include="Sentry" Version="6.6.0" />
+    <PackageReference Include="Sentry.Profiling" Version="6.6.0" />
+    <PackageReference Include="Sentry.Serilog" Version="6.6.0" />
+    <PackageReference Include="YamlDotNet" Version="18.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,7 +52,7 @@ Released under the GNU GPLv3+.</Copyright>
     <None Include="..\ISTA-Patcher\Assets\appsettings.json" Link="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Assets\gui-settings.json">
+    <None Include="Assets\gui-settings.json" Link="gui-settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

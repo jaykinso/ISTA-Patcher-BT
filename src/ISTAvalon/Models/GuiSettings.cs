@@ -4,6 +4,21 @@
 namespace ISTAvalon.Models;
 
 /// <summary>
+/// Available application theme modes.
+/// </summary>
+public enum AppTheme
+{
+    /// <summary>Follow the OS system theme (Avalonia default).</summary>
+    Default,
+
+    /// <summary>Force light theme regardless of OS setting.</summary>
+    Light,
+
+    /// <summary>Force dark theme regardless of OS setting.</summary>
+    Dark,
+}
+
+/// <summary>
 /// Persisted GUI settings stored in gui-settings.json alongside the executable.
 /// </summary>
 public class GuiSettings
@@ -22,7 +37,7 @@ public class GuiSettings
 
     public IReadOnlyDictionary<string, string>? GetPresetFor(string commandName)
     {
-        return Presets.TryGetValue(commandName, out var preset) ? preset : null;
+        return Presets.GetValueOrDefault(commandName);
     }
 }
 

@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// SPDX-FileCopyrightText: Copyright 2025 TautCony
-
-using JetBrains.Annotations;
+// SPDX-FileCopyrightText: Copyright 2025-2026 TautCony
 
 namespace ISTAPatcher.Commands.Options;
 
 using DotMake.CommandLine;
 using ISTAlter;
+using JetBrains.Annotations;
 
 public interface ICommonPatchOption
 {

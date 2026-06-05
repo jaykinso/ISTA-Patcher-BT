@@ -14,6 +14,7 @@ public static class Program
     public static void Main(string[] args)
     {
         TelemetryBootstrap.Initialize(args);
+        App.ObservationOptions = GuiObservationOptions.From(args);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 

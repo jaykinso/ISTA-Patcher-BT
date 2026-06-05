@@ -11,7 +11,7 @@ using SkiaSharp;
 
 public static class ResourceUtils
 {
-    public static Stream? GetFromResource(ModuleDefMD module, string resourceName, string fileName)
+    public static Stream? GetFromResource(ModuleDef module, string resourceName, string fileName)
     {
         foreach (var resource in module.Resources)
         {
@@ -34,12 +34,12 @@ public static class ResourceUtils
         throw new Exception("Resource not found.");
     }
 
-    public static void UpdateResource(ModuleDefMD module, string resourceName, string fileName, byte[] newContent)
+    public static void UpdateResource(ModuleDef module, string resourceName, string fileName, byte[] newContent)
     {
         UpdateResource(module, resourceName, fileName, _ => newContent);
     }
 
-    public static void UpdateResource(ModuleDefMD module, string resourceName, string fileName, Func<DictionaryEntry, byte[]> handler)
+    public static void UpdateResource(ModuleDef module, string resourceName, string fileName, Func<DictionaryEntry, byte[]> handler)
     {
         if (module.Resources.FirstOrDefault(r => r.Name == resourceName) is not EmbeddedResource embeddedResource)
         {
@@ -104,24 +104,17 @@ public static class ResourceUtils
     {
         using var original = SKBitmap.Decode(input);
         using var typeface = SKTypeface.FromFamilyName("Arial", SKFontStyle.Normal);
+        using var font = new SKFont(typeface, 32);
 
-        using var shadowPaint = new SKPaint
-        {
-            TextSize = 32,
-            IsAntialias = true,
-            Typeface = typeface,
-            Color = new SKColor(0, 0, 0, (byte)(255 * 0.2f)),
-        };
-        using var textPaint = new SKPaint
-        {
-            TextSize = 32,
-            IsAntialias = true,
-            Typeface = typeface,
-            Color = new SKColor(255, 255, 255, (byte)(255 * 0.6f)),
-        };
+        using var shadowPaint = new SKPaint();
+        shadowPaint.IsAntialias = true;
+        shadowPaint.Color = new SKColor(0, 0, 0, (byte)(255 * 0.2f));
+        using var textPaint = new SKPaint();
+        textPaint.IsAntialias = true;
+        textPaint.Color = new SKColor(255, 255, 255, (byte)(255 * 0.6f));
 
-        textPaint.GetFontMetrics(out var metrics);
-        var textWidth = textPaint.MeasureText(watermarkText);
+        font.GetFontMetrics(out var metrics);
+        var textWidth = font.MeasureText(watermarkText);
         var textHeight = metrics.Descent - metrics.Ascent;
         var stepX = textWidth * 1.2f;
         var stepY = textHeight * 1.5f;
@@ -134,8 +127,8 @@ public static class ResourceUtils
         {
             for (var y = 0f; y < layerBitmap.Width; y += stepY)
             {
-                layerCanvas.DrawText(watermarkText, x + 1, y + 1 - metrics.Ascent, shadowPaint);
-                layerCanvas.DrawText(watermarkText, x, y - metrics.Ascent, textPaint);
+                layerCanvas.DrawText(watermarkText, x + 1, y + 1 - metrics.Ascent, SKTextAlign.Left, font, shadowPaint);
+                layerCanvas.DrawText(watermarkText, x, y - metrics.Ascent, SKTextAlign.Left, font, textPaint);
             }
         }
 
