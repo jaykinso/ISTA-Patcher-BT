@@ -353,7 +353,7 @@ public static partial class PatchUtils
         var ctor = patchedAttribute.FindConstructors().First();
         var attributes = new List<CustomAttribute>
         {
-            new(ctor) { ConstructorArguments = { new CAArgument(module.CorLibTypes.String, "By"), new CAArgument(module.CorLibTypes.String, "BimmerTech") } },
+            new(ctor) { ConstructorArguments = { new CAArgument(module.CorLibTypes.String, "By"), new CAArgument(module.CorLibTypes.String, "BimmerSpace") } },
             new(ctor) { ConstructorArguments = { new CAArgument(module.CorLibTypes.String, "At"), new CAArgument(module.CorLibTypes.String, Timestamp) } },
             new(ctor) { ConstructorArguments = { new CAArgument(module.CorLibTypes.String, "Repo"), new CAArgument(module.CorLibTypes.String, Encoding.UTF8.GetString(Source)) } },
             new(ctor) { ConstructorArguments = { new CAArgument(module.CorLibTypes.String, "Version"), new CAArgument(module.CorLibTypes.String, Encoding.UTF8.GetString(Version)) } },

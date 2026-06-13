@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis.Text;
 public class PatchUtilsGenerator : IIncrementalGenerator
 {
     // 明文常量 - 直接在这里修改即可
-    private const string PatcherName = "BimmerTech";
+    private const string PatcherName = "BimmerSpace";
     private const string ConfigFormat = "Powered by {0}";
     private const string SourceUrl = "ISTA-Patcher";
 
